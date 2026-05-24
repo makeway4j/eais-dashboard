@@ -154,6 +154,68 @@ export function getEaisTopicMix(db) {
   `).all();
 }
 
+export function recordRunStart(db, jobName, details = {}) {
+  const result = db.prepare(`
+    INSERT INTO run_history (job_name, status, details)
+    VALUES (?, 'running', ?)
+  `).run(jobName, JSON.stringify(details));
+
+  return result.lastInsertRowid;
+}
+
+export function recordRunFinish(db, runId, { status, details = {}, logPath = null } = {}) {
+  db.prepare(`
+    UPDATE run_history
+    SET status = ?, finished_at = CURRENT_TIMESTAMP, details = ?, log_path = ?
+    WHERE id = ?
+  `).run(status, JSON.stringify(details), logPath, runId);
+}
+
+export function upsertBriefing(db, briefing) {
+  const {
+    briefingDate,
+    title,
+    htmlPath = null,
+    sentStatus = "draft",
+    sentAt = null,
+    joplinNoteId = null,
+    itemCount = 0,
+    highPriorityCount = 0
+  } = briefing;
+
+  db.prepare(`
+    INSERT INTO briefings (
+      briefing_date,
+      title,
+      html_path,
+      sent_status,
+      sent_at,
+      joplin_note_id,
+      item_count,
+      high_priority_count
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(briefing_date) DO UPDATE SET
+      title = excluded.title,
+      html_path = excluded.html_path,
+      sent_status = excluded.sent_status,
+      sent_at = excluded.sent_at,
+      joplin_note_id = excluded.joplin_note_id,
+      item_count = excluded.item_count,
+      high_priority_count = excluded.high_priority_count,
+      updated_at = CURRENT_TIMESTAMP
+  `).run(
+    briefingDate,
+    title,
+    htmlPath,
+    sentStatus,
+    sentAt,
+    joplinNoteId,
+    itemCount,
+    highPriorityCount
+  );
+}
+
 export async function importLegacyDigest(db, digestPath = legacyDigestDbPath()) {
   const before = tableCount(db, "items");
   const escapedPath = quoteSqlString(digestPath);

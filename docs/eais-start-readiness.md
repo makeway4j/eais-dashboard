@@ -177,11 +177,14 @@ Completed:
 - Started the EAIS web/API service on `127.0.0.1:8788`.
 - Verified `/api/health`, `/api/summary`, `/api/items`, and dashboard HTML through a local SSH tunnel.
 - Added live API hydration for the Sources, History, and System dashboard views.
+- Added an EAIS daily briefing systemd timer installer for 6:00 AM America/Chicago.
+- Added daily briefing database records in `briefings` plus `daily-brief` run history.
+- Added optional Joplin archive support through local markdown export first, then API mode after Joplin token setup.
 
 Remaining:
 
-1. Add a systemd timer for the 6 AM daily briefing.
-2. Add Joplin save/export for daily brief archives.
+1. Configure real Gmail SMTP credentials and switch `EMAIL_SEND_MODE=send` after a manual send test.
+2. Configure Joplin API mode after the Joplin Web Clipper endpoint/token are confirmed.
 3. Keep old `/opt/digest` cron enabled until EAIS can produce a confirmed daily brief.
 4. After EAIS sends a verified email and saves to Joplin, disable or archive the old digest cron.
 
@@ -210,6 +213,7 @@ npm run eais:init-db
 npm run eais:import-digest
 npm run eais:summary
 bash scripts/install-eais-dashboard-systemd.sh
+bash scripts/install-eais-daily-timer.sh
 ```
 
 Then add production service files after the app skeleton is ready.
