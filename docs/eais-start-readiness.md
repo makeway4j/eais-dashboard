@@ -180,6 +180,7 @@ Completed:
 - Added an EAIS daily briefing systemd timer installer for 6:00 AM America/Chicago.
 - Added daily briefing database records in `briefings` plus `daily-brief` run history.
 - Added optional Joplin archive support through local markdown export first, then API mode after Joplin token setup.
+- Added live operations visibility for latest briefing, archive status, timer status, and run history in the dashboard.
 
 Remaining:
 
