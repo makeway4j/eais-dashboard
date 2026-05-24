@@ -65,8 +65,8 @@ Recommended first production shape:
 
 ```text
 CT 301 /opt/eais
-  Node web app
-  SQLite or Postgres database
+  Node 22+ web app
+  SQLite database at data/eais.db
   background workers / systemd timers
   local .env secrets
   Cloudflare Tunnel to eais.muvazio.com
@@ -200,7 +200,7 @@ Phase 1: Production shell
 
 - Create `/opt/eais` app structure.
 - Add dashboard routes matching the approved mockup.
-- Add database and migrations.
+- Add SQLite schema and migration/init command.
 - Add `.env.example`.
 - Add local login/auth.
 - Add system health page.

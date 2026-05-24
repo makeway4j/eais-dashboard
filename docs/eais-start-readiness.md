@@ -173,8 +173,8 @@ Completed:
 
 Remaining:
 
-1. Create an EAIS database with tables from `docs/eais-production-spec.md`.
-2. Add import job that reads `/opt/digest/digest.db` and copies items into EAIS.
+1. Run `npm run eais:init-db` on CT 301.
+2. Run `npm run eais:import-digest` on CT 301 to copy `/opt/digest/digest.db` into EAIS.
 3. Add a local web service bound to `127.0.0.1:8788`.
 4. Add a systemd service for the dashboard.
 5. Add a systemd timer for the 6 AM daily briefing.
@@ -202,6 +202,9 @@ git clone https://github.com/makeway4j/eais-dashboard.git .
 npm install --omit=dev
 npm test
 npm run dry-run
+npm run eais:init-db
+npm run eais:import-digest
+npm run eais:summary
 ```
 
 Then add production service files after the app skeleton is ready.

@@ -9,10 +9,13 @@
     "dry-run": "node src/jobs/daily.mjs --dry-run",
     "daily": "node src/jobs/daily.mjs",
     "send": "node src/jobs/daily.mjs --send",
-    "test": "node tests/render-smoke.mjs"
+    "eais:init-db": "node --no-warnings=ExperimentalWarning src/jobs/eais-db.mjs init",
+    "eais:import-digest": "node --no-warnings=ExperimentalWarning src/jobs/eais-db.mjs import-digest",
+    "eais:summary": "node --no-warnings=ExperimentalWarning src/jobs/eais-db.mjs summary",
+    "test": "node tests/render-smoke.mjs && node --no-warnings=ExperimentalWarning tests/eais-db-smoke.mjs"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "dependencies": {
     "fast-xml-parser": "^5.8.0",
