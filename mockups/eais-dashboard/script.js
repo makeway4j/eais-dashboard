@@ -17,8 +17,10 @@ const jarvisMessages = document.querySelector("#jarvis-messages");
 const jarvisEndpoint = window.EAIS_JARVIS_ENDPOINT || "";
 const calendarStatus = document.querySelector("#calendar-status");
 const calendarAccountLabel = document.querySelector("#calendar-account-label");
+const signalList = document.querySelector("#signal-list");
 let toastTimer;
 let activePlaceIndex = 0;
+let eaisApiOnline = false;
 
 const dailyQuotes = [
   "Build the system that makes the right action obvious.",
@@ -88,6 +90,135 @@ function formatCompact(value) {
 
 function clampPercent(value) {
   return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function setMetric(key, value, note) {
+  const metric = document.querySelector(`[data-metric="${key}"]`);
+  const metricNote = document.querySelector(`[data-metric-note="${key}"]`);
+
+  if (metric) {
+    metric.textContent = value;
+  }
+
+  if (metricNote && note) {
+    metricNote.textContent = note;
+  }
+}
+
+function scoreToPercent(score) {
+  const numericScore = Number(score || 0);
+  return numericScore <= 1 ? Math.round(numericScore * 100) : Math.round(numericScore);
+}
+
+function signalClass(item) {
+  if (item.triage === "SIGNAL" || Number(item.score || 0) >= 0.85) {
+    return "high";
+  }
+
+  if (item.triage === "WATCH" || Number(item.score || 0) >= 0.65) {
+    return "medium";
+  }
+
+  return "watch";
+}
+
+function formatItemTime(value) {
+  if (!value) {
+    return "recent import";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "recent import";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(date);
+}
+
+function renderSignalItems(items) {
+  if (!signalList || !items?.length) {
+    return;
+  }
+
+  signalList.replaceChildren();
+
+  items.forEach((item) => {
+    const row = document.createElement("article");
+    row.className = `signal-row ${signalClass(item)}`;
+
+    const score = document.createElement("div");
+    score.className = "signal-score";
+    score.textContent = String(scoreToPercent(item.score));
+
+    const body = document.createElement("div");
+    body.className = "signal-body";
+
+    const meta = document.createElement("div");
+    meta.className = "row-meta";
+    meta.textContent = `${item.category || "Signal"} - ${item.source || "EAIS"} - ${formatItemTime(item.fetchedAt)}`;
+
+    const heading = document.createElement("h3");
+    heading.textContent = item.title || "Untitled signal";
+
+    const copy = document.createElement("p");
+    copy.textContent = item.analysis || item.body || "Imported from the legacy digest pipeline.";
+
+    const action = document.createElement("button");
+    action.className = "row-action";
+    action.type = "button";
+    action.textContent = item.triage === "SIGNAL" ? "Review" : "Queue";
+
+    body.append(meta, heading, copy);
+    row.append(score, body, action);
+    signalList.append(row);
+  });
+}
+
+async function fetchJson(path) {
+  const response = await fetch(path, { headers: { Accept: "application/json" } });
+
+  if (!response.ok) {
+    throw new Error(`EAIS API returned ${response.status}`);
+  }
+
+  return response.json();
+}
+
+async function loadEaisSummary() {
+  const data = await fetchJson("/api/summary");
+  const summary = data.summary;
+
+  eaisApiOnline = true;
+  setMetric("signals-today", String(summary.todayItems || summary.totalItems || 0), `${summary.todaySignals || 0} high priority`);
+  setMetric("source-health", summary.totalItems > 0 ? "92%" : "0%", `${summary.categoryCount || 0} categories imported`);
+}
+
+async function loadEaisSignals(filter = "all") {
+  const query = new URLSearchParams({ limit: "4" });
+  if (filter !== "all") {
+    query.set("triage", filter);
+  }
+
+  const data = await fetchJson(`/api/items?${query}`);
+  renderSignalItems(data.items);
+}
+
+async function hydrateEaisDashboard(filter = "all") {
+  if (window.location.protocol === "file:") {
+    return;
+  }
+
+  try {
+    await Promise.all([loadEaisSummary(), loadEaisSignals(filter)]);
+  } catch (error) {
+    eaisApiOnline = false;
+    console.warn(error);
+  }
 }
 
 function showView(viewName) {
@@ -261,8 +392,20 @@ document.querySelectorAll(".segmented-control").forEach((control) => {
       button.classList.toggle("selected", button === selectedButton);
     });
 
+    if (selectedButton.dataset.signalFilter) {
+      hydrateEaisDashboard(selectedButton.dataset.signalFilter);
+    }
+
     showToast(`${selectedButton.textContent.trim()} view selected`);
   });
+});
+
+signalList?.addEventListener("click", (event) => {
+  const action = event.target.closest(".row-action");
+
+  if (action) {
+    showToast(eaisApiOnline ? "EAIS item selected from live database" : "Demo action: signal selected");
+  }
 });
 
 document.querySelectorAll(".row-action, .command-button, .full-button, .text-button, .icon-button").forEach((button) => {
@@ -385,5 +528,6 @@ updateClock();
 setDailyQuote();
 updateRevenueModel();
 setPlace(0);
+hydrateEaisDashboard();
 setInterval(updateClock, 1000);
 setInterval(() => setPlace(activePlaceIndex + 1), 9000);

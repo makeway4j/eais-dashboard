@@ -12,7 +12,8 @@
     "eais:init-db": "node --no-warnings=ExperimentalWarning src/jobs/eais-db.mjs init",
     "eais:import-digest": "node --no-warnings=ExperimentalWarning src/jobs/eais-db.mjs import-digest",
     "eais:summary": "node --no-warnings=ExperimentalWarning src/jobs/eais-db.mjs summary",
-    "test": "node tests/render-smoke.mjs && node --no-warnings=ExperimentalWarning tests/eais-db-smoke.mjs"
+    "eais:serve": "node --no-warnings=ExperimentalWarning src/server/eais-server.mjs",
+    "test": "node tests/render-smoke.mjs && node --no-warnings=ExperimentalWarning tests/eais-db-smoke.mjs && node --no-warnings=ExperimentalWarning tests/eais-server-smoke.mjs"
   },
   "engines": {
     "node": ">=22"

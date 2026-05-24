@@ -109,13 +109,13 @@
           <div class="metric-grid">
             <article class="metric-card">
               <span class="metric-label">Signals Today</span>
-              <strong>24</strong>
-              <span class="metric-note positive">8 high priority</span>
+              <strong data-metric="signals-today">24</strong>
+              <span class="metric-note positive" data-metric-note="signals-today">8 high priority</span>
             </article>
             <article class="metric-card">
               <span class="metric-label">Source Health</span>
-              <strong>92%</strong>
-              <span class="metric-note">1 feed needs review</span>
+              <strong data-metric="source-health">92%</strong>
+              <span class="metric-note" data-metric-note="source-health">1 feed needs review</span>
             </article>
             <article class="metric-card">
               <span class="metric-label">Next Brief</span>
@@ -142,13 +142,13 @@
                   <p>Ranked by impact, source confidence, and personal relevance.</p>
                 </div>
                 <div class="segmented-control" aria-label="Signal filter">
-                  <button class="selected" type="button">All</button>
-                  <button type="button">High</button>
-                  <button type="button">Watch</button>
+                  <button class="selected" data-signal-filter="all" type="button">All</button>
+                  <button data-signal-filter="SIGNAL" type="button">High</button>
+                  <button data-signal-filter="WATCH" type="button">Watch</button>
                 </div>
               </div>
 
-              <div class="signal-list">
+              <div class="signal-list" id="signal-list">
                 <article class="signal-row high">
                   <div class="signal-score">94</div>
                   <div class="signal-body">

@@ -176,12 +176,11 @@ Completed:
 
 Remaining:
 
-1. Add a local web service bound to `127.0.0.1:8788`.
-2. Add dashboard API endpoints backed by `/opt/eais/data/eais.db`.
-3. Add a systemd service for the dashboard.
-4. Add a systemd timer for the 6 AM daily briefing.
-5. Keep old `/opt/digest` cron enabled until EAIS can produce a confirmed daily brief.
-6. After EAIS sends a verified email and saves to Joplin, disable or archive the old digest cron.
+1. Install and verify `eais-dashboard.service`.
+2. Add dashboard API hydration for more views beyond Today.
+3. Add a systemd timer for the 6 AM daily briefing.
+4. Keep old `/opt/digest` cron enabled until EAIS can produce a confirmed daily brief.
+5. After EAIS sends a verified email and saves to Joplin, disable or archive the old digest cron.
 
 ## Security Blockers Before External Access
 
@@ -207,6 +206,7 @@ npm run dry-run
 npm run eais:init-db
 npm run eais:import-digest
 npm run eais:summary
+bash scripts/install-eais-dashboard-systemd.sh
 ```
 
 Then add production service files after the app skeleton is ready.

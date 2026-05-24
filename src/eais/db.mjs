@@ -34,6 +34,69 @@ export function tableCount(db, table) {
   return db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count;
 }
 
+export function getEaisSummary(db) {
+  const totalItems = tableCount(db, "items");
+  const triageRows = db.prepare(`
+    SELECT COALESCE(triage, 'UNTRIAGED') AS triage, COUNT(*) AS count
+    FROM items
+    GROUP BY COALESCE(triage, 'UNTRIAGED')
+  `).all();
+
+  const triageCounts = Object.fromEntries(triageRows.map((row) => [row.triage, row.count]));
+  const todayItems = db.prepare("SELECT COUNT(*) AS count FROM items WHERE date(fetched_at) = date('now')").get().count;
+  const todaySignals = db.prepare("SELECT COUNT(*) AS count FROM items WHERE triage = 'SIGNAL' AND date(fetched_at) = date('now')").get().count;
+  const categoryCount = db.prepare("SELECT COUNT(DISTINCT category) AS count FROM items").get().count;
+  const importedRuns = db.prepare("SELECT COUNT(*) AS count FROM run_history WHERE job_name = 'import-digest'").get().count;
+
+  return {
+    totalItems,
+    todayItems,
+    todaySignals,
+    categoryCount,
+    importedRuns,
+    triageCounts
+  };
+}
+
+export function listEaisItems(db, { triage, limit = 8 } = {}) {
+  const normalizedLimit = Math.max(1, Math.min(Number(limit) || 8, 50));
+  const params = {};
+  let where = "WHERE title IS NOT NULL AND trim(title) != ''";
+
+  if (triage && triage !== "all") {
+    where += " AND triage = $triage";
+    params.$triage = triage;
+  }
+
+  return db.prepare(`
+    SELECT
+      id,
+      source,
+      category,
+      title,
+      url,
+      body,
+      fetched_at AS fetchedAt,
+      score,
+      triage,
+      analysis,
+      status
+    FROM items
+    ${where}
+    ORDER BY
+      CASE triage
+        WHEN 'SIGNAL' THEN 1
+        WHEN 'WATCH' THEN 2
+        WHEN 'DEFERRED' THEN 3
+        WHEN 'REJECT' THEN 5
+        ELSE 4
+      END,
+      COALESCE(score, 0) DESC,
+      fetched_at DESC
+    LIMIT ${normalizedLimit}
+  `).all(params);
+}
+
 export async function importLegacyDigest(db, digestPath = legacyDigestDbPath()) {
   const before = tableCount(db, "items");
   const escapedPath = quoteSqlString(digestPath);

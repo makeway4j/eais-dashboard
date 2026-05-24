@@ -1,0 +1,77 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { ensureEaisDatabase } from "../src/eais/db.mjs";
+
+const tempDir = await mkdtemp(join(tmpdir(), "eais-server-"));
+const eaisDbPath = join(tempDir, "eais.db");
+process.env.EAIS_DB_PATH = eaisDbPath;
+
+let server;
+
+try {
+  const db = await ensureEaisDatabase(eaisDbPath);
+  db.prepare(`
+    INSERT INTO items (id, source, category, title, url, body, fetched_at, score, triage, analysis, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    "server-test-1",
+    "rss",
+    "ai",
+    "Server test signal",
+    "https://example.com/server-test",
+    "Server test body",
+    new Date().toISOString(),
+    0.94,
+    "SIGNAL",
+    "Server test analysis.",
+    "signal"
+  );
+  db.close();
+
+  const { createEaisServer } = await import("../src/server/eais-server.mjs");
+  server = await createEaisServer();
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+
+  const { port } = server.address();
+  const baseUrl = `http://127.0.0.1:${port}`;
+
+  const health = await fetch(`${baseUrl}/api/health`).then((response) => response.json());
+  const summary = await fetch(`${baseUrl}/api/summary`).then((response) => response.json());
+  const items = await fetch(`${baseUrl}/api/items?triage=SIGNAL&limit=1`).then((response) => response.json());
+  const html = await fetch(baseUrl).then((response) => response.text());
+
+  if (!health.ok || health.service !== "eais-dashboard") {
+    throw new Error("Expected health endpoint to report EAIS dashboard service.");
+  }
+
+  if (summary.summary.totalItems !== 1 || summary.summary.todaySignals !== 1) {
+    throw new Error("Expected summary endpoint to report the test signal.");
+  }
+
+  if (items.items[0]?.title !== "Server test signal") {
+    throw new Error("Expected items endpoint to return the test signal.");
+  }
+
+  if (!html.includes("EAIS Command Surface")) {
+    throw new Error("Expected root route to serve the EAIS dashboard.");
+  }
+
+  console.log("EAIS server smoke test passed");
+} finally {
+  if (server) {
+    await new Promise((resolve) => server.close(resolve));
+  }
+
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      await rm(tempDir, { recursive: true, force: true });
+      break;
+    } catch (error) {
+      if (attempt === 4 || error.code !== "EBUSY") {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }
+}
