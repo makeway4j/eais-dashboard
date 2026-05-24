@@ -1,0 +1,42 @@
+[
+  {
+    "title": "White House AI governance update expected to affect model reporting",
+    "source": "Example Policy Monitor",
+    "url": "https://example.com/policy/ai-reporting",
+    "publishedAt": "2026-05-24T10:00:00-05:00",
+    "topic": "governance",
+    "importance": "high",
+    "summary": "A new policy signal could change how advanced model developers document safety testing and incident reporting.",
+    "whyItMatters": "Governance changes can alter vendor release timelines, compliance costs, and public safety expectations."
+  },
+  {
+    "title": "Major AI vendor releases improved enterprise model controls",
+    "source": "Example Vendor Blog",
+    "url": "https://example.com/vendor/enterprise-controls",
+    "publishedAt": "2026-05-24T08:30:00-05:00",
+    "topic": "vendors",
+    "importance": "medium",
+    "summary": "The vendor added more admin controls, audit logs, and deployment options for enterprise AI products.",
+    "whyItMatters": "Enterprise controls are often the bridge between experimentation and broader corporate adoption."
+  },
+  {
+    "title": "Data center developer announces new power-backed AI campus",
+    "source": "Example Infrastructure News",
+    "url": "https://example.com/data-centers/ai-campus",
+    "publishedAt": "2026-05-23T16:00:00-05:00",
+    "topic": "infrastructure",
+    "importance": "high",
+    "summary": "A planned AI data center campus includes long-term power procurement and phased capacity expansion.",
+    "whyItMatters": "Power availability is becoming one of the main constraints on AI infrastructure growth."
+  },
+  {
+    "title": "AI security startup raises funding for model-risk monitoring",
+    "source": "Example Tech News",
+    "url": "https://example.com/startups/model-risk-monitoring",
+    "publishedAt": "2026-05-23T12:15:00-05:00",
+    "topic": "tech",
+    "importance": "watch",
+    "summary": "The startup is building tools for monitoring model behavior, data leakage, and compliance drift.",
+    "whyItMatters": "Security and observability tooling may become a required layer in regulated AI deployments."
+  }
+]

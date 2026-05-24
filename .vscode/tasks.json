@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Generate daily HTML preview",
+      "type": "shell",
+      "command": "npm run generate",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Dry run live daily job",
+      "type": "shell",
+      "command": "npm run dry-run",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run smoke tests",
+      "type": "shell",
+      "command": "npm test",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Send daily email",
+      "type": "shell",
+      "command": "npm run send",
+      "problemMatcher": []
+    }
+  ]
+}

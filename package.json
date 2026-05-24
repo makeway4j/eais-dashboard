@@ -1,0 +1,21 @@
+{
+  "name": "html-dailyupdate",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Home-lab daily HTML briefing for AI, AI governance, AI vendors, data centers, and related tech news.",
+  "scripts": {
+    "generate": "node src/jobs/daily.mjs --sample",
+    "dry-run": "node src/jobs/daily.mjs --dry-run",
+    "daily": "node src/jobs/daily.mjs",
+    "send": "node src/jobs/daily.mjs --send",
+    "test": "node tests/render-smoke.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.8.0",
+    "nodemailer": "^8.0.8"
+  }
+}
