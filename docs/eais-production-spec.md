@@ -163,6 +163,7 @@ Daily briefing:
 - Preserve the current `html-dailyupdate` pipeline where useful.
 - Review `/opt/digest` before replacing anything on CT 301.
 - Migrate working ingest, scoring, and brief generation logic into EAIS if it is better than the local prototype.
+- See `docs/eais-start-readiness.md` for the 2026-05-24 read-only CT 301 and `/opt/digest` findings.
 
 Email:
 
