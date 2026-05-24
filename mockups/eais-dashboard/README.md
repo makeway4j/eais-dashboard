@@ -25,7 +25,7 @@ Current design direction:
 - Dark executive command-center theme.
 - Live date and time in the top bar.
 - Daily motivational operating thought.
-- API and token cost guardrails.
+- API and token cost guardrails for OpenAI, Gemini, Anthropic, Kimi 2.5, and local fallback.
 - YouTube intelligence queue for videos to summarize or turn into briefing/social inputs.
 - Revenue stream tracking for Pinterest, KalshiEdge, RepoReel/ClipEngine, EAIS reports, and future income projects.
 - Revenue sliders that update totals, monthly mix, and Vision Board progress.

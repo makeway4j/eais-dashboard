@@ -539,10 +539,18 @@ h3 {
 
 .cost-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
 }
 
+.api-cost-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.api-cost-summary article,
 .cost-grid article {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -550,6 +558,7 @@ h3 {
   padding: 14px;
 }
 
+.api-cost-summary span,
 .cost-grid span,
 .video-meta {
   color: var(--muted);
@@ -558,6 +567,7 @@ h3 {
   text-transform: uppercase;
 }
 
+.api-cost-summary strong,
 .cost-grid strong {
   display: block;
   margin: 8px 0 4px;
@@ -565,12 +575,20 @@ h3 {
   font-size: 24px;
 }
 
+.api-cost-summary p,
 .cost-grid p,
 .quote-panel p,
 .video-card p {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.45;
+}
+
+.provider-cost small {
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .quote-panel blockquote {
@@ -1591,6 +1609,7 @@ h3 {
   .history-layout,
   .system-grid,
   .lower-grid,
+  .api-cost-summary,
   .cost-grid,
   .video-grid,
   .revenue-metric-grid,

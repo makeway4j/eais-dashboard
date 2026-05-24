@@ -110,13 +110,13 @@
             </article>
             <article class="metric-card">
               <span class="metric-label">Cost Guard</span>
-              <strong>$0.38</strong>
+              <strong>$0.63</strong>
               <span class="metric-note positive">daily estimate</span>
             </article>
             <article class="metric-card">
               <span class="metric-label">Token Use</span>
-              <strong>42.8k</strong>
-              <span class="metric-note">OpenAI + Gemini budget watch</span>
+              <strong>74.6k</strong>
+              <span class="metric-note">4 paid providers watched</span>
             </article>
           </div>
 
@@ -201,30 +201,52 @@
               <div class="panel-header">
                 <div>
                   <h2>API & Token Cost</h2>
-                  <p>Daily guardrails for summaries, scoring, and future social/job agents.</p>
+                  <p>Daily guardrails for OpenAI, Gemini, Anthropic, Kimi 2.5, and local fallback usage.</p>
                 </div>
                 <span class="status-pill good">Under Budget</span>
               </div>
-              <div class="cost-grid">
+              <div class="api-cost-summary">
                 <article>
+                  <span>Total API Spend</span>
+                  <strong>$0.63</strong>
+                  <p>$2.00 daily cap</p>
+                </article>
+                <article>
+                  <span>Total Tokens</span>
+                  <strong>74.6k</strong>
+                  <p>58.8k in / 15.8k out</p>
+                </article>
+              </div>
+              <div class="cost-grid">
+                <article class="provider-cost">
                   <span>OpenAI</span>
                   <strong>$0.24</strong>
                   <p>31.2k tokens</p>
+                  <small>24.8k in / 6.4k out</small>
                 </article>
-                <article>
+                <article class="provider-cost">
                   <span>Gemini</span>
                   <strong>$0.09</strong>
                   <p>8.6k tokens</p>
+                  <small>7.4k in / 1.2k out</small>
                 </article>
-                <article>
+                <article class="provider-cost">
+                  <span>Anthropic</span>
+                  <strong>$0.21</strong>
+                  <p>18.4k tokens</p>
+                  <small>13.6k in / 4.8k out</small>
+                </article>
+                <article class="provider-cost">
+                  <span>Kimi 2.5</span>
+                  <strong>$0.09</strong>
+                  <p>16.4k tokens</p>
+                  <small>13.0k in / 3.4k out</small>
+                </article>
+                <article class="provider-cost">
                   <span>Local Ollama</span>
                   <strong>$0.00</strong>
                   <p>Kora fallback</p>
-                </article>
-                <article>
-                  <span>Daily Cap</span>
-                  <strong>$2.00</strong>
-                  <p>hard stop planned</p>
+                  <small>not billed</small>
                 </article>
               </div>
             </section>
