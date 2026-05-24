@@ -24,6 +24,8 @@ Current design direction:
 
 - Dark executive command-center theme.
 - Live date and time in the top bar.
+- Animated futuristic command header with scan motion, grid texture, and metric-card entrance effects.
+- Little Elm, Texas weather card in the top command area.
 - Daily motivational operating thought.
 - API and token cost guardrails for OpenAI, Gemini, Anthropic, Kimi 2.5, and local fallback.
 - YouTube intelligence queue for videos to summarize or turn into briefing/social inputs.

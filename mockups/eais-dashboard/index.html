@@ -72,8 +72,11 @@
       </aside>
 
       <main class="workspace">
-        <header class="topbar">
-          <div>
+        <header class="topbar command-top">
+          <div class="command-grid" aria-hidden="true"></div>
+          <div class="scan-beam" aria-hidden="true"></div>
+          <div class="command-copy">
+            <span class="command-kicker">EAIS Command Surface</span>
             <h1>Today</h1>
             <p>6 AM briefing, source health, and active intelligence queue.</p>
             <div class="clock-line" aria-live="polite">
@@ -81,13 +84,24 @@
               <span id="today-time">--:-- --</span>
             </div>
           </div>
-          <div class="top-actions">
-            <button class="icon-button" title="Refresh digest" type="button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.2-5L4 8m0 0V3m0 5h5M4 13a8 8 0 0 0 14.2 5L20 16m0 0v5m0-5h-5"/></svg>
-            </button>
-            <button class="icon-button" title="Open settings" type="button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1A2 2 0 1 1 4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1A2 2 0 1 1 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1A2 2 0 1 1 19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6 1h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1Z"/></svg>
-            </button>
+          <div class="command-side">
+            <article class="weather-card" aria-label="Weather for Little Elm, Texas">
+              <div class="weather-orb" aria-hidden="true"></div>
+              <div>
+                <span class="weather-location">Little Elm, TX</span>
+                <strong id="weather-temp">87 F</strong>
+                <p id="weather-summary">Sunny now. Storm watch later.</p>
+              </div>
+              <span class="weather-chip" id="weather-wind">S 13 mph</span>
+            </article>
+            <div class="top-actions">
+              <button class="icon-button" title="Refresh digest" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.2-5L4 8m0 0V3m0 5h5M4 13a8 8 0 0 0 14.2 5L20 16m0 0v5m0-5h-5"/></svg>
+              </button>
+              <button class="icon-button" title="Open settings" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1A2 2 0 1 1 4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1A2 2 0 1 1 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1A2 2 0 1 1 19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6 1h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+              </button>
+            </div>
           </div>
         </header>
 

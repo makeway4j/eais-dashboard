@@ -192,6 +192,88 @@ button:disabled {
   margin-bottom: 20px;
 }
 
+.command-top {
+  position: relative;
+  min-height: 162px;
+  overflow: hidden;
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+  border-radius: 8px;
+  background:
+    linear-gradient(118deg, rgba(var(--panel-rgb), 0.94) 0%, rgba(var(--bg-rgb), 0.88) 48%, rgba(var(--accent-rgb), 0.18) 100%),
+    var(--panel);
+  box-shadow: 0 20px 64px rgba(0, 0, 0, 0.34);
+  padding: 22px;
+}
+
+.command-top::before,
+.command-top::after {
+  position: absolute;
+  border: 1px solid rgba(var(--accent-rgb), 0.34);
+  border-radius: 999px;
+  content: "";
+  pointer-events: none;
+}
+
+.command-top::before {
+  right: 18%;
+  top: -70px;
+  width: 210px;
+  height: 210px;
+  animation: commandPulse 4.8s ease-in-out infinite;
+}
+
+.command-top::after {
+  right: -56px;
+  bottom: -96px;
+  width: 240px;
+  height: 240px;
+  border-color: rgba(var(--subtle-rgb), 0.16);
+  animation: commandDrift 9s ease-in-out infinite;
+}
+
+.command-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(var(--subtle-rgb), 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--subtle-rgb), 0.045) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.78), transparent 80%);
+  opacity: 0.66;
+  pointer-events: none;
+}
+
+.scan-beam {
+  position: absolute;
+  top: -45%;
+  bottom: -45%;
+  width: 110px;
+  background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.22), transparent);
+  filter: blur(2px);
+  opacity: 0.8;
+  pointer-events: none;
+  transform: translateX(-160px) rotate(14deg);
+  animation: scanSweep 7s ease-in-out infinite;
+}
+
+.command-copy,
+.command-side {
+  position: relative;
+  z-index: 1;
+}
+
+.command-copy {
+  max-width: 560px;
+}
+
+.command-kicker,
+.weather-location {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .clock-line {
   display: flex;
   flex-wrap: wrap;
@@ -205,7 +287,8 @@ button:disabled {
 .clock-line span {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(var(--panel-rgb), 0.78);
+  background: rgba(var(--panel-rgb), 0.82);
+  box-shadow: inset 0 0 18px rgba(var(--accent-rgb), 0.05);
   padding: 6px 8px;
 }
 
@@ -220,6 +303,12 @@ h1 {
   margin-bottom: 4px;
   font-size: 30px;
   line-height: 1.1;
+}
+
+.command-top h1 {
+  margin-top: 6px;
+  font-size: clamp(32px, 4vw, 54px);
+  text-shadow: 0 0 24px rgba(var(--accent-rgb), 0.2);
 }
 
 h2 {
@@ -248,6 +337,84 @@ h3 {
 .top-actions {
   display: flex;
   gap: 8px;
+}
+
+.command-side {
+  display: grid;
+  min-width: 330px;
+  max-width: 420px;
+  gap: 12px;
+  justify-items: end;
+}
+
+.weather-card {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 58px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(var(--accent-rgb), 0.34);
+  border-radius: 8px;
+  background: rgba(var(--panel-rgb), 0.78);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--ink-rgb), 0.06),
+    0 18px 40px rgba(0, 0, 0, 0.22);
+  padding: 12px;
+}
+
+.weather-orb {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border: 1px solid rgba(var(--accent-rgb), 0.36);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 34%, rgba(var(--ink-rgb), 0.92), transparent 13%),
+    radial-gradient(circle, rgba(var(--accent-rgb), 0.68), rgba(var(--accent-rgb), 0.18) 58%, transparent 68%);
+  box-shadow: 0 0 28px rgba(var(--accent-rgb), 0.28);
+  animation: weatherGlow 3.4s ease-in-out infinite;
+}
+
+.weather-orb::before,
+.weather-orb::after {
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  border-radius: 50%;
+  content: "";
+}
+
+.weather-orb::after {
+  inset: -5px;
+  border-color: rgba(var(--accent-rgb), 0.2);
+  border-top-color: rgba(var(--ink-rgb), 0.64);
+  animation: orbitSpin 6s linear infinite;
+}
+
+.weather-card strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.weather-card p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.weather-chip {
+  align-self: start;
+  border: 1px solid rgba(var(--ink-rgb), 0.12);
+  border-radius: 8px;
+  background: rgba(var(--bg-rgb), 0.54);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 6px 8px;
+  white-space: nowrap;
 }
 
 .icon-button {
@@ -300,6 +467,36 @@ h3 {
 
 .metric-card {
   padding: 16px;
+  position: relative;
+  overflow: hidden;
+  animation: metricRise 520ms ease both;
+}
+
+.metric-card::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 0%, rgba(var(--accent-rgb), 0.08) 42%, transparent 62%);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-100%);
+  animation: metricSheen 6s ease-in-out infinite;
+}
+
+.metric-card:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.metric-card:nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.metric-card:nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.metric-card:nth-child(5) {
+  animation-delay: 240ms;
 }
 
 .metric-label {
@@ -327,6 +524,91 @@ h3 {
 
 .metric-note.positive {
   color: var(--green);
+}
+
+@keyframes scanSweep {
+  0%,
+  18% {
+    transform: translateX(-180px) rotate(14deg);
+  }
+
+  52%,
+  100% {
+    transform: translateX(calc(100vw + 180px)) rotate(14deg);
+  }
+}
+
+@keyframes commandPulse {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(0.96);
+  }
+
+  50% {
+    opacity: 0.78;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes commandDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(-18px, -10px, 0);
+  }
+}
+
+@keyframes weatherGlow {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 24px rgba(var(--accent-rgb), 0.22);
+  }
+
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 38px rgba(var(--accent-rgb), 0.38);
+  }
+}
+
+@keyframes orbitSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes metricRise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes metricSheen {
+  0%,
+  36% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  64%,
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
 }
 
 .content-grid,
@@ -1640,6 +1922,21 @@ h3 {
   .vision-focus {
     min-width: 0;
   }
+
+  .command-top {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .command-side {
+    min-width: 0;
+    max-width: none;
+    justify-items: stretch;
+  }
+
+  .top-actions {
+    justify-content: flex-end;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1653,6 +1950,29 @@ h3 {
     align-items: stretch;
     grid-template-columns: 1fr;
     flex-direction: column;
+  }
+
+  .command-top {
+    min-height: auto;
+    padding: 18px;
+  }
+
+  .command-top h1 {
+    font-size: 38px;
+  }
+
+  .weather-card {
+    grid-template-columns: 46px minmax(0, 1fr);
+  }
+
+  .weather-orb {
+    width: 40px;
+    height: 40px;
+  }
+
+  .weather-chip {
+    grid-column: 1 / -1;
+    justify-self: start;
   }
 
   .nav-list {
@@ -1746,5 +2066,15 @@ h3 {
 
   .jarvis-messages {
     max-height: 74px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
   }
 }
