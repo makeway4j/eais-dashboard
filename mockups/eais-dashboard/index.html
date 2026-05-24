@@ -423,7 +423,7 @@
             </div>
             <div class="revenue-total">
               <span>Total Projected</span>
-              <strong>$8,450</strong>
+              <strong id="revenue-total-monthly">$8,450</strong>
               <em>monthly run-rate target</em>
             </div>
           </div>
@@ -436,12 +436,12 @@
             </article>
             <article class="metric-card">
               <span class="metric-label">Projected Annual</span>
-              <strong>$101k</strong>
+              <strong id="revenue-total-annual">$101k</strong>
               <span class="metric-note">based on monthly target</span>
             </article>
             <article class="metric-card">
               <span class="metric-label">Confidence</span>
-              <strong>62%</strong>
+              <strong id="revenue-confidence">62%</strong>
               <span class="metric-note">weighted forecast</span>
             </article>
             <article class="metric-card">
@@ -450,6 +450,34 @@
               <span class="metric-note">blocked items</span>
             </article>
           </div>
+
+          <section class="panel revenue-control-panel">
+            <div class="panel-header">
+              <div>
+                <h2>Revenue Sliders</h2>
+                <p>Adjust monthly projections and watch the revenue dashboard and Vision Board move together.</p>
+              </div>
+              <span class="status-pill neutral">Live Demo</span>
+            </div>
+            <div class="revenue-slider-grid">
+              <label class="revenue-slider">
+                <span>Pinterest Content Engine <b data-slider-value="pinterest">$2,400</b></span>
+                <input type="range" min="0" max="10000" step="50" value="2400" data-revenue-key="pinterest" data-confidence="68">
+              </label>
+              <label class="revenue-slider">
+                <span>KalshiEdge <b data-slider-value="kalshi">$3,500</b></span>
+                <input type="range" min="0" max="12000" step="50" value="3500" data-revenue-key="kalshi" data-confidence="55">
+              </label>
+              <label class="revenue-slider">
+                <span>RepoReel / ClipEngine <b data-slider-value="reporeel">$1,250</b></span>
+                <input type="range" min="0" max="8000" step="50" value="1250" data-revenue-key="reporeel" data-confidence="48">
+              </label>
+              <label class="revenue-slider">
+                <span>EAIS Reports <b data-slider-value="eais">$1,300</b></span>
+                <input type="range" min="0" max="10000" step="50" value="1300" data-revenue-key="eais" data-confidence="42">
+              </label>
+            </div>
+          </section>
 
           <div class="revenue-layout">
             <section class="panel">
@@ -484,7 +512,7 @@
                     </td>
                     <td data-label="Category">Affiliate / Content</td>
                     <td data-label="Status"><span class="status-pill good">Active</span></td>
-                    <td data-label="Projected Monthly">$2,400</td>
+                    <td data-label="Projected Monthly" data-monthly-value="pinterest">$2,400</td>
                     <td data-label="Confidence">68%</td>
                     <td data-label="Next Move"><button class="text-button" type="button">Review pipeline</button></td>
                   </tr>
@@ -500,7 +528,7 @@
                     </td>
                     <td data-label="Category">Trading Intelligence</td>
                     <td data-label="Status"><span class="status-pill warn">Ramping</span></td>
-                    <td data-label="Projected Monthly">$3,500</td>
+                    <td data-label="Projected Monthly" data-monthly-value="kalshi">$3,500</td>
                     <td data-label="Confidence">55%</td>
                     <td data-label="Next Move"><button class="text-button" type="button">Fix production signal flow</button></td>
                   </tr>
@@ -516,7 +544,7 @@
                     </td>
                     <td data-label="Category">Media Automation</td>
                     <td data-label="Status"><span class="status-pill neutral">Planned</span></td>
-                    <td data-label="Projected Monthly">$1,250</td>
+                    <td data-label="Projected Monthly" data-monthly-value="reporeel">$1,250</td>
                     <td data-label="Confidence">48%</td>
                     <td data-label="Next Move"><button class="text-button" type="button">Define offer</button></td>
                   </tr>
@@ -532,7 +560,7 @@
                     </td>
                     <td data-label="Category">AI Intelligence</td>
                     <td data-label="Status"><span class="status-pill neutral">Concept</span></td>
-                    <td data-label="Projected Monthly">$1,300</td>
+                    <td data-label="Projected Monthly" data-monthly-value="eais">$1,300</td>
                     <td data-label="Confidence">42%</td>
                     <td data-label="Next Move"><button class="text-button" type="button">Package first report</button></td>
                   </tr>
@@ -545,23 +573,23 @@
               <div class="revenue-bars">
                 <div>
                   <span>Pinterest</span>
-                  <b style="width:69%"></b>
-                  <em>$2.4k</em>
+                  <b data-mix-bar="pinterest" style="width:69%"></b>
+                  <em data-mix-value="pinterest">$2.4k</em>
                 </div>
                 <div>
                   <span>KalshiEdge</span>
-                  <b style="width:100%"></b>
-                  <em>$3.5k</em>
+                  <b data-mix-bar="kalshi" style="width:100%"></b>
+                  <em data-mix-value="kalshi">$3.5k</em>
                 </div>
                 <div>
                   <span>RepoReel</span>
-                  <b style="width:36%"></b>
-                  <em>$1.25k</em>
+                  <b data-mix-bar="reporeel" style="width:36%"></b>
+                  <em data-mix-value="reporeel">$1.25k</em>
                 </div>
                 <div>
                   <span>EAIS Reports</span>
-                  <b style="width:37%"></b>
-                  <em>$1.3k</em>
+                  <b data-mix-bar="eais" style="width:37%"></b>
+                  <em data-mix-value="eais">$1.3k</em>
                 </div>
               </div>
               <div class="revenue-note">
@@ -580,8 +608,8 @@
             </div>
             <div class="vision-focus">
               <span>Current Focus</span>
-              <strong>Build income engines</strong>
-              <em>then convert targets into milestones</em>
+              <strong id="vision-income-focus">Build income engines</strong>
+              <em id="vision-income-note">then convert targets into milestones</em>
             </div>
           </div>
 
@@ -594,8 +622,8 @@
                 <p>Long-range executive EV target. Tie to revenue milestones and monthly reserve plan.</p>
                 <div class="vision-progress">
                   <span>Target progress</span>
-                  <b><i style="width:18%"></i></b>
-                  <em>18%</em>
+                  <b><i data-vision-progress="lucid" style="width:18%"></i></b>
+                  <em data-vision-percent="lucid">18%</em>
                 </div>
               </div>
             </article>
@@ -608,8 +636,8 @@
                 <p>Daily executive carry upgrade. Good reward for first EAIS revenue milestone.</p>
                 <div class="vision-progress">
                   <span>Target progress</span>
-                  <b><i style="width:72%"></i></b>
-                  <em>72%</em>
+                  <b><i data-vision-progress="tumi" style="width:72%"></i></b>
+                  <em data-vision-percent="tumi">72%</em>
                 </div>
               </div>
             </article>
@@ -621,12 +649,43 @@
                 <p>Dashboard on eais.muvazio.com with daily briefs, revenue, jobs, Joplin archive, and homelab service health.</p>
                 <div class="vision-progress">
                   <span>Launch progress</span>
-                  <b><i style="width:41%"></i></b>
-                  <em>41%</em>
+                  <b><i data-vision-progress="system" style="width:41%"></i></b>
+                  <em data-vision-percent="system">41%</em>
                 </div>
               </div>
             </article>
           </div>
+
+          <section class="panel places-panel">
+            <div class="panel-header">
+              <div>
+                <h2>Top Places To See</h2>
+                <p>Vacation targets connected to the same monthly revenue sliders.</p>
+              </div>
+              <button class="command-button" type="button" id="next-place-button">Change Image</button>
+            </div>
+            <div class="places-layout">
+              <article class="place-feature">
+                <img id="place-feature-image" src="./assets/place-bali.jpg" alt="Bali, Indonesia">
+                <div>
+                  <span class="vision-type">Vacation Target</span>
+                  <h3 id="place-feature-title">Bali Reset Trip</h3>
+                  <p id="place-feature-copy">A warm, restorative destination for the first real unplugged EAIS win.</p>
+                  <div class="vision-progress">
+                    <span>Trip fund progress</span>
+                    <b><i data-vision-progress="travel" style="width:38%"></i></b>
+                    <em data-vision-percent="travel">38%</em>
+                  </div>
+                </div>
+              </article>
+              <div class="place-picker" aria-label="Vacation image picker">
+                <button class="place-chip selected" type="button" data-place="0">Bali</button>
+                <button class="place-chip" type="button" data-place="1">Tokyo</button>
+                <button class="place-chip" type="button" data-place="2">Santorini</button>
+                <button class="place-chip" type="button" data-place="3">Maldives</button>
+              </div>
+            </div>
+          </section>
 
           <div class="vision-lower">
             <section class="panel">
@@ -878,6 +937,23 @@
         </section>
       </main>
     </div>
+
+    <aside class="jarvis-chat" aria-label="Jarvis assistant">
+      <div class="jarvis-header">
+        <div>
+          <span>Jarvis</span>
+          <strong>EAIS Copilot</strong>
+        </div>
+        <em>VM 106</em>
+      </div>
+      <div class="jarvis-messages" id="jarvis-messages">
+        <p><b>Jarvis</b> I can help review revenue targets, cron schedules, and the next EAIS build task.</p>
+      </div>
+      <form class="jarvis-form" id="jarvis-form">
+        <input id="jarvis-input" autocomplete="off" placeholder="Ask Jarvis..." aria-label="Ask Jarvis">
+        <button type="submit">Send</button>
+      </form>
+    </aside>
 
     <script src="./script.js"></script>
   </body>

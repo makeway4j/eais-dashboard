@@ -5,7 +5,18 @@ const subtitle = document.querySelector(".topbar p");
 const dateEl = document.querySelector("#today-date");
 const timeEl = document.querySelector("#today-time");
 const quoteEl = document.querySelector("#daily-quote");
+const revenueSliders = document.querySelectorAll("[data-revenue-key]");
+const placeButtons = document.querySelectorAll("[data-place]");
+const placeImage = document.querySelector("#place-feature-image");
+const placeTitle = document.querySelector("#place-feature-title");
+const placeCopy = document.querySelector("#place-feature-copy");
+const nextPlaceButton = document.querySelector("#next-place-button");
+const jarvisForm = document.querySelector("#jarvis-form");
+const jarvisInput = document.querySelector("#jarvis-input");
+const jarvisMessages = document.querySelector("#jarvis-messages");
+const jarvisEndpoint = window.EAIS_JARVIS_ENDPOINT || "";
 let toastTimer;
+let activePlaceIndex = 0;
 
 const dailyQuotes = [
   "Build the system that makes the right action obvious.",
@@ -28,6 +39,54 @@ const viewCopy = {
   planner: ["Planner", "Project calendar, cron run windows, checklist, and backlog."],
   system: ["System", "Homelab services, deployment health, and launch checklist."]
 };
+
+const places = [
+  {
+    title: "Bali Reset Trip",
+    copy: "A warm, restorative destination for the first real unplugged EAIS win.",
+    image: "./assets/place-bali.jpg",
+    alt: "Bali, Indonesia"
+  },
+  {
+    title: "Tokyo Systems Week",
+    copy: "A high-energy city target for technology, food, fashion, and future operator inspiration.",
+    image: "./assets/place-tokyo.jpg",
+    alt: "Tokyo, Japan"
+  },
+  {
+    title: "Santorini Strategy Break",
+    copy: "A clean, beautiful reset point for mapping the next revenue engine after launch.",
+    image: "./assets/place-santorini.jpg",
+    alt: "Santorini, Greece"
+  },
+  {
+    title: "Maldives Deep Recharge",
+    copy: "A premium recovery target tied to bigger recurring revenue and real time freedom.",
+    image: "./assets/place-maldives.jpg",
+    alt: "Maldives overwater vacation"
+  }
+];
+
+function formatMoney(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function formatCompact(value) {
+  if (value >= 1000) {
+    const compact = value / 1000;
+    return `$${Number.isInteger(compact) ? compact : compact.toFixed(compact >= 10 ? 0 : 1)}k`;
+  }
+
+  return formatMoney(value);
+}
+
+function clampPercent(value) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
 
 function showView(viewName) {
   navButtons.forEach((button) => {
@@ -59,6 +118,124 @@ function showToast(message) {
   toastTimer = window.setTimeout(() => {
     toast.classList.remove("show");
   }, 2200);
+}
+
+function setVisionProgress(key, value) {
+  const percent = clampPercent(value);
+  const bar = document.querySelector(`[data-vision-progress="${key}"]`);
+  const label = document.querySelector(`[data-vision-percent="${key}"]`);
+
+  if (bar) {
+    bar.style.width = `${percent}%`;
+  }
+
+  if (label) {
+    label.textContent = `${percent}%`;
+  }
+}
+
+function updateRevenueModel() {
+  const values = {};
+  let total = 0;
+  let weightedConfidence = 0;
+
+  revenueSliders.forEach((slider) => {
+    const key = slider.dataset.revenueKey;
+    const value = Number(slider.value);
+    const confidence = Number(slider.dataset.confidence);
+    values[key] = value;
+    total += value;
+    weightedConfidence += value * confidence;
+
+    document.querySelector(`[data-slider-value="${key}"]`).textContent = formatMoney(value);
+    document.querySelector(`[data-monthly-value="${key}"]`).textContent = formatMoney(value);
+    document.querySelector(`[data-mix-value="${key}"]`).textContent = formatCompact(value);
+  });
+
+  const maxValue = Math.max(...Object.values(values), 1);
+  Object.entries(values).forEach(([key, value]) => {
+    const bar = document.querySelector(`[data-mix-bar="${key}"]`);
+    if (bar) {
+      bar.style.width = `${Math.max(4, Math.round((value / maxValue) * 100))}%`;
+    }
+  });
+
+  document.querySelector("#revenue-total-monthly").textContent = formatMoney(total);
+  document.querySelector("#revenue-total-annual").textContent = formatCompact(total * 12);
+  document.querySelector("#revenue-confidence").textContent = `${clampPercent(weightedConfidence / Math.max(total, 1))}%`;
+
+  setVisionProgress("lucid", total / 450);
+  setVisionProgress("tumi", 20 + total / 160);
+  setVisionProgress("system", 20 + total / 400);
+  setVisionProgress("travel", total / 220);
+
+  document.querySelector("#vision-income-focus").textContent = `${formatMoney(total)} monthly target`;
+  document.querySelector("#vision-income-note").textContent = `travel fund ${clampPercent(total / 220)}% and system launch ${clampPercent(20 + total / 400)}%`;
+}
+
+function setPlace(index) {
+  activePlaceIndex = (index + places.length) % places.length;
+  const place = places[activePlaceIndex];
+  placeImage.src = place.image;
+  placeImage.alt = place.alt;
+  placeTitle.textContent = place.title;
+  placeCopy.textContent = place.copy;
+
+  placeButtons.forEach((button) => {
+    button.classList.toggle("selected", Number(button.dataset.place) === activePlaceIndex);
+  });
+}
+
+function addJarvisMessage(author, message) {
+  const bubble = document.createElement("p");
+  bubble.innerHTML = `<b>${author}</b> ${message}`;
+  jarvisMessages.append(bubble);
+  jarvisMessages.scrollTop = jarvisMessages.scrollHeight;
+}
+
+function getLocalJarvisReply(message) {
+  const lower = message.toLowerCase();
+
+  if (lower.includes("revenue") || lower.includes("slider")) {
+    return "Revenue sliders are live. Move a project amount and I will reflect it in total revenue, confidence, and Vision Board progress.";
+  }
+
+  if (lower.includes("cron") || lower.includes("schedule")) {
+    return "Planner is the right place for cron visibility. Next production step is storing run history from systemd timers.";
+  }
+
+  if (lower.includes("joplin")) {
+    return "Joplin archive is represented in the prototype. A real connection should save daily briefs and notable items by notebook/tag.";
+  }
+
+  if (lower.includes("vacation") || lower.includes("trip") || lower.includes("place")) {
+    return "The Vision Board travel image rotates automatically. Use Change Image or the place chips to pick the target manually.";
+  }
+
+  return "Jarvis bridge is visible and ready. This prototype is using local demo replies until we connect the real homelab Jarvis endpoint.";
+}
+
+async function getJarvisReply(message) {
+  if (!jarvisEndpoint) {
+    return getLocalJarvisReply(message);
+  }
+
+  try {
+    const response = await fetch(jarvisEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, source: "eais-dashboard" })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Jarvis returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.reply || data.message || getLocalJarvisReply(message);
+  } catch (error) {
+    return `Jarvis bridge failed over to local mode: ${error.message}`;
+  }
 }
 
 navButtons.forEach((button) => {
@@ -127,6 +304,39 @@ document.querySelectorAll(".check-row input").forEach((checkbox) => {
   });
 });
 
+revenueSliders.forEach((slider) => {
+  slider.addEventListener("input", updateRevenueModel);
+  slider.addEventListener("change", () => {
+    showToast("Revenue model updated");
+  });
+});
+
+placeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    setPlace(Number(button.dataset.place));
+    showToast(`${placeTitle.textContent} selected`);
+  });
+});
+
+nextPlaceButton?.addEventListener("click", () => {
+  setPlace(activePlaceIndex + 1);
+});
+
+jarvisForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const message = jarvisInput.value.trim();
+
+  if (!message) {
+    return;
+  }
+
+  addJarvisMessage("You", message);
+  jarvisInput.value = "";
+  window.setTimeout(async () => {
+    addJarvisMessage("Jarvis", await getJarvisReply(message));
+  }, 220);
+});
+
 const initialView = new URL(window.location.href).searchParams.get("view") || "today";
 showView(viewCopy[initialView] ? initialView : "today");
 
@@ -153,4 +363,7 @@ function setDailyQuote() {
 
 updateClock();
 setDailyQuote();
+updateRevenueModel();
+setPlace(0);
 setInterval(updateClock, 1000);
+setInterval(() => setPlace(activePlaceIndex + 1), 9000);
