@@ -14,6 +14,7 @@
     "eais:summary": "node --no-warnings=ExperimentalWarning src/jobs/eais-db.mjs summary",
     "eais:serve": "node --no-warnings=ExperimentalWarning src/server/eais-server.mjs",
     "eais:install-daily-timer": "bash scripts/install-eais-daily-timer.sh",
+    "eais:check-integrations": "node src/jobs/eais-integrations.mjs",
     "test": "node --no-warnings=ExperimentalWarning tests/render-smoke.mjs && node --no-warnings=ExperimentalWarning tests/eais-db-smoke.mjs && node --no-warnings=ExperimentalWarning tests/eais-server-smoke.mjs"
   },
   "engines": {

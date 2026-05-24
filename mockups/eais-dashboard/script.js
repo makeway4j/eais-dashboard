@@ -207,10 +207,10 @@ function formatSystemdTime(value) {
 }
 
 function statusClass(status) {
-  if (["success", "sent", "active", "running", "saved-local", "saved-api"].includes(status)) {
+  if (["success", "sent", "active", "running", "saved-local", "saved-api", "ready"].includes(status)) {
     return "good";
   }
-  if (["dry-run", "watch", "running"].includes(status)) {
+  if (["dry-run", "watch", "running", "configured"].includes(status)) {
     return "warn";
   }
   return "neutral";
@@ -363,6 +363,8 @@ function renderOps(ops) {
   const latestBriefing = ops.briefings?.[0];
   const latestRun = ops.runHistory?.find((run) => run.jobName === "daily-brief") || ops.runHistory?.[0];
   const timerActive = ops.timer?.activeState === "active";
+  const email = ops.integrations?.email;
+  const joplin = ops.integrations?.joplin;
 
   if (latestBriefing) {
     if (briefStatus) {
@@ -375,8 +377,8 @@ function renderOps(ops) {
     }
     if (briefHighPriority) briefHighPriority.textContent = `${latestBriefing.highPriorityCount || 0} high priority items`;
     if (briefSourceCount) briefSourceCount.textContent = `${latestBriefing.itemCount || 0} total briefing items`;
-    if (briefEmailStatus) briefEmailStatus.textContent = `Email status: ${latestBriefing.sentStatus}`;
-    if (briefArchiveStatus) briefArchiveStatus.textContent = latestBriefing.joplinNoteId ? "Joplin archive saved" : "Joplin archive pending";
+    if (briefEmailStatus) briefEmailStatus.textContent = email ? `Email: ${email.status} (${email.sendMode})` : `Email status: ${latestBriefing.sentStatus}`;
+    if (briefArchiveStatus) briefArchiveStatus.textContent = joplin ? `Joplin: ${joplin.status} (${joplin.saveMode})` : latestBriefing.joplinNoteId ? "Joplin archive saved" : "Joplin archive pending";
     if (joplinArchiveCopy) {
       joplinArchiveCopy.textContent = latestBriefing.joplinNoteId
         ? `Latest archive is saved for ${latestBriefing.briefingDate}. ${latestBriefing.joplinNoteId.startsWith("local:") ? "It is currently a local markdown archive on CT 301." : "It is linked to Joplin."}`
@@ -449,6 +451,8 @@ function renderSystem(system) {
     ["Today feed", "live", `${system.todayItems} items`, system.todayItems ? "ok" : "warn-text"],
     ["Signal archive", "triage", `${system.signalItems} signals`, "ok"],
     ["Daily timer", system.timer?.unit || "systemd", system.timer?.activeState || "unknown", system.timer?.activeState === "active" ? "ok" : "warn-text"],
+    ["Gmail SMTP", system.integrations?.email?.provider || "smtp", system.integrations?.email?.status || "unknown", statusClass(system.integrations?.email?.status) === "good" ? "ok" : "warn-text"],
+    ["Joplin archive", system.integrations?.joplin?.saveMode || "archive", system.integrations?.joplin?.status || "unknown", statusClass(system.integrations?.joplin?.status) === "good" ? "ok" : "warn-text"],
     ["Node runtime", system.node, `up ${formatUptime(system.processUptimeSeconds)}`, "ok"]
   ];
 

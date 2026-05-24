@@ -6,6 +6,13 @@ import { ensureEaisDatabase } from "../src/eais/db.mjs";
 const tempDir = await mkdtemp(join(tmpdir(), "eais-server-"));
 const eaisDbPath = join(tempDir, "eais.db");
 process.env.EAIS_DB_PATH = eaisDbPath;
+process.env.EMAIL_SEND_MODE = "dry-run";
+process.env.EMAIL_PROVIDER = "gmail_smtp";
+process.env.EMAIL_FROM = "EAIS Test <eais@example.com>";
+process.env.EMAIL_TO = "owner@example.com";
+process.env.SMTP_USER = "eais@example.com";
+process.env.SMTP_PASS = "test-password";
+process.env.JOPLIN_SAVE_MODE = "local";
 
 let server;
 
@@ -60,6 +67,7 @@ try {
   const system = await fetch(`${baseUrl}/api/system`).then((response) => response.json());
   const briefings = await fetch(`${baseUrl}/api/recent-briefings`).then((response) => response.json());
   const ops = await fetch(`${baseUrl}/api/ops`).then((response) => response.json());
+  const integrations = await fetch(`${baseUrl}/api/integrations`).then((response) => response.json());
   const html = await fetch(baseUrl).then((response) => response.text());
 
   if (!health.ok || health.service !== "eais-dashboard") {
@@ -92,6 +100,14 @@ try {
 
   if (ops.briefings[0]?.joplinNoteId?.startsWith("local:") !== true || ops.runHistory[0]?.jobName !== "daily-brief") {
     throw new Error("Expected ops endpoint to return briefing archive and run history.");
+  }
+
+  if (integrations.integrations.email.status !== "configured" || integrations.integrations.joplin.status !== "ready") {
+    throw new Error("Expected integrations endpoint to report configured email and ready local Joplin archive.");
+  }
+
+  if (system.system.integrations.email.provider !== "gmail_smtp") {
+    throw new Error("Expected system endpoint to include integration readiness.");
   }
 
   if (!html.includes("EAIS Command Surface")) {

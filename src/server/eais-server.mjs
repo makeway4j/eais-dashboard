@@ -16,6 +16,7 @@ import {
   listRunHistory,
   listEaisSources
 } from "../eais/db.mjs";
+import { getIntegrationStatus } from "../integrations/status.mjs";
 
 const execFileAsync = promisify(execFile);
 const projectRoot = resolve(fileURLToPath(new URL("../..", import.meta.url)));
@@ -185,14 +186,24 @@ async function handleApi(request, response, url, db) {
     sendJson(response, 200, {
       ok: true,
       timer: await getTimerStatus(),
+      integrations: getIntegrationStatus(),
       briefings: listRecentBriefings(db, { limit: 5 }),
       runHistory: listRunHistory(db, { limit: 8 })
     });
     return true;
   }
 
+  if (url.pathname === "/api/integrations") {
+    sendJson(response, 200, {
+      ok: true,
+      integrations: getIntegrationStatus()
+    });
+    return true;
+  }
+
   if (url.pathname === "/api/system") {
     const summary = getEaisSummary(db);
+    const integrations = getIntegrationStatus();
     sendJson(response, 200, {
       ok: true,
       system: {
@@ -205,6 +216,7 @@ async function handleApi(request, response, url, db) {
         signalItems: summary.triageCounts.SIGNAL || 0,
         serviceStatus: "running",
         timer: await getTimerStatus(),
+        integrations,
         processUptimeSeconds: Math.round(process.uptime()),
         node: process.version
       }
