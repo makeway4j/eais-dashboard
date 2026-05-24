@@ -2,6 +2,12 @@
 
 Static dashboard mockup for the first EAIS product direction.
 
+Production build planning lives in:
+
+```text
+C:\JCW_3\projects\html-dailyupdate\docs\eais-production-spec.md
+```
+
 Open the clickable prototype locally:
 
 ```powershell
