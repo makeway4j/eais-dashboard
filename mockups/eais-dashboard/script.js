@@ -15,6 +15,8 @@ const jarvisForm = document.querySelector("#jarvis-form");
 const jarvisInput = document.querySelector("#jarvis-input");
 const jarvisMessages = document.querySelector("#jarvis-messages");
 const jarvisEndpoint = window.EAIS_JARVIS_ENDPOINT || "";
+const calendarStatus = document.querySelector("#calendar-status");
+const calendarAccountLabel = document.querySelector("#calendar-account-label");
 let toastTimer;
 let activePlaceIndex = 0;
 
@@ -266,8 +268,26 @@ document.querySelectorAll(".segmented-control").forEach((control) => {
 document.querySelectorAll(".row-action, .command-button, .full-button, .text-button, .icon-button").forEach((button) => {
   button.addEventListener("click", () => {
     const label = button.getAttribute("title") || button.textContent.trim();
+    const calendarAction = button.dataset.calendarAction;
 
     if (button.classList.contains("nav-item")) {
+      return;
+    }
+
+    if (calendarAction === "connect") {
+      calendarStatus.textContent = "Demo Connected";
+      calendarStatus.classList.remove("warn");
+      calendarStatus.classList.add("good");
+      calendarAccountLabel.textContent = "Gmail calendar ready for OAuth";
+      showToast("Demo: Google Calendar connection staged");
+      return;
+    }
+
+    if (calendarAction === "sync") {
+      calendarStatus.textContent = "Synced";
+      calendarStatus.classList.remove("warn");
+      calendarStatus.classList.add("good");
+      showToast("Demo: planner runs synced to Google Calendar");
       return;
     }
 

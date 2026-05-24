@@ -30,6 +30,7 @@ Current design direction:
 - Revenue stream tracking for Pinterest, KalshiEdge, RepoReel/ClipEngine, EAIS reports, and future income projects.
 - Revenue sliders that update totals, monthly mix, and Vision Board progress.
 - Project calendar for EAIS, Sunkissed, fitness, RepoReel, KalshiEdge, and other recurring runs.
+- Google Calendar planning card for connecting a Gmail calendar and syncing run/review blocks.
 - Project checklist and backlog sections for launch tasks, cron work, and future dashboard features.
 - Joplin save/archive actions for daily briefings.
 - Vision board for goals and items such as Lucid Gravity and TUMI backpack.
