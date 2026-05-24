@@ -21,6 +21,7 @@ const viewCopy = {
   sources: ["Sources", "Feeds, monitors, and provider APIs that power EAIS."],
   history: ["Digest History", "Search previous briefings, decisions, and saved intelligence."],
   jobs: ["Jobs", "Recommendations scored by fit, upside, urgency, and effort."],
+  revenue: ["Revenue Streams", "Projected income, active projects, confidence, and next actions."],
   social: ["Social Drafts", "Approval-first LinkedIn and X drafts from high-confidence stories."],
   system: ["System", "Homelab services, deployment health, and launch checklist."]
 };

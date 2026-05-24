@@ -10,7 +10,15 @@
     <div class="app-shell">
       <aside class="sidebar" aria-label="Primary">
         <div class="brand">
-          <div class="brand-mark">E</div>
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 64">
+              <path class="logo-orbit" d="M12 34c5-14 20-22 34-17 4 2 7 4 10 7"/>
+              <path class="logo-orbit alt" d="M52 30c-5 14-20 22-34 17-4-2-7-4-10-7"/>
+              <path class="logo-core" d="M22 20h22v7H30v6h12v7H30v4h15v7H22V20Z"/>
+              <circle cx="50" cy="18" r="4"/>
+              <circle cx="14" cy="46" r="4"/>
+            </svg>
+          </div>
           <div>
             <div class="brand-name">E.A.I.S.</div>
             <div class="brand-subtitle">Executive AI Intelligence</div>
@@ -34,12 +42,16 @@
             <span class="nav-icon">04</span>
             <span>Jobs</span>
           </button>
-          <button class="nav-item" data-view="social" type="button">
+          <button class="nav-item" data-view="revenue" type="button">
             <span class="nav-icon">05</span>
+            <span>Revenue</span>
+          </button>
+          <button class="nav-item" data-view="social" type="button">
+            <span class="nav-icon">06</span>
             <span>Social Drafts</span>
           </button>
           <button class="nav-item" data-view="system" type="button">
-            <span class="nav-icon">06</span>
+            <span class="nav-icon">07</span>
             <span>System</span>
           </button>
         </nav>
@@ -388,6 +400,163 @@
                 <span>$120k - $160k</span>
               </article>
             </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-revenue">
+          <div class="revenue-hero panel">
+            <div>
+              <h2>Projected Monthly Revenue</h2>
+              <p>All income projects in one operating view: active, ramping, planned, and watchlist.</p>
+            </div>
+            <div class="revenue-total">
+              <span>Total Projected</span>
+              <strong>$8,450</strong>
+              <em>monthly run-rate target</em>
+            </div>
+          </div>
+
+          <div class="revenue-metric-grid">
+            <article class="metric-card">
+              <span class="metric-label">Active Streams</span>
+              <strong>4</strong>
+              <span class="metric-note positive">2 producing</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Projected Annual</span>
+              <strong>$101k</strong>
+              <span class="metric-note">based on monthly target</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Confidence</span>
+              <strong>62%</strong>
+              <span class="metric-note">weighted forecast</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Next Action</span>
+              <strong>3</strong>
+              <span class="metric-note">blocked items</span>
+            </article>
+          </div>
+
+          <div class="revenue-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Revenue Streams</h2>
+                  <p>Projects EAIS should track, forecast, and push forward.</p>
+                </div>
+                <button class="command-button" type="button">Add Stream</button>
+              </div>
+              <table class="data-table revenue-table">
+                <thead>
+                  <tr>
+                    <th>Project</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Projected Monthly</th>
+                    <th>Confidence</th>
+                    <th>Next Move</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td data-label="Project">
+                      <div class="project-cell">
+                        <span class="project-icon pinterest">P</span>
+                        <div>
+                          <strong>Pinterest Content Engine</strong>
+                          <small>Fitness + skincare pin packs</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td data-label="Category">Affiliate / Content</td>
+                    <td data-label="Status"><span class="status-pill good">Active</span></td>
+                    <td data-label="Projected Monthly">$2,400</td>
+                    <td data-label="Confidence">68%</td>
+                    <td data-label="Next Move"><button class="text-button" type="button">Review pipeline</button></td>
+                  </tr>
+                  <tr>
+                    <td data-label="Project">
+                      <div class="project-cell">
+                        <span class="project-icon kalshi">K</span>
+                        <div>
+                          <strong>KalshiEdge</strong>
+                          <small>Signals, edge dashboard, paid intelligence</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td data-label="Category">Trading Intelligence</td>
+                    <td data-label="Status"><span class="status-pill warn">Ramping</span></td>
+                    <td data-label="Projected Monthly">$3,500</td>
+                    <td data-label="Confidence">55%</td>
+                    <td data-label="Next Move"><button class="text-button" type="button">Fix production signal flow</button></td>
+                  </tr>
+                  <tr>
+                    <td data-label="Project">
+                      <div class="project-cell">
+                        <span class="project-icon reels">R</span>
+                        <div>
+                          <strong>RepoReel / ClipEngine</strong>
+                          <small>Short-form automation and content services</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td data-label="Category">Media Automation</td>
+                    <td data-label="Status"><span class="status-pill neutral">Planned</span></td>
+                    <td data-label="Projected Monthly">$1,250</td>
+                    <td data-label="Confidence">48%</td>
+                    <td data-label="Next Move"><button class="text-button" type="button">Define offer</button></td>
+                  </tr>
+                  <tr>
+                    <td data-label="Project">
+                      <div class="project-cell">
+                        <span class="project-icon eais">E</span>
+                        <div>
+                          <strong>EAIS Reports</strong>
+                          <small>Executive AI briefings and dashboards</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td data-label="Category">AI Intelligence</td>
+                    <td data-label="Status"><span class="status-pill neutral">Concept</span></td>
+                    <td data-label="Projected Monthly">$1,300</td>
+                    <td data-label="Confidence">42%</td>
+                    <td data-label="Next Move"><button class="text-button" type="button">Package first report</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+            <aside class="panel">
+              <h2>Monthly Mix</h2>
+              <div class="revenue-bars">
+                <div>
+                  <span>Pinterest</span>
+                  <b style="width:69%"></b>
+                  <em>$2.4k</em>
+                </div>
+                <div>
+                  <span>KalshiEdge</span>
+                  <b style="width:100%"></b>
+                  <em>$3.5k</em>
+                </div>
+                <div>
+                  <span>RepoReel</span>
+                  <b style="width:36%"></b>
+                  <em>$1.25k</em>
+                </div>
+                <div>
+                  <span>EAIS Reports</span>
+                  <b style="width:37%"></b>
+                  <em>$1.3k</em>
+                </div>
+              </div>
+              <div class="revenue-note">
+                <strong>EAIS role</strong>
+                <p>Track projected income, confidence, blockers, and next actions for every money-making project.</p>
+              </div>
+            </aside>
           </div>
         </section>
 

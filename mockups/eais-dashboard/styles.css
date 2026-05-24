@@ -61,13 +61,37 @@ input {
 
 .brand-mark {
   display: grid;
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   place-items: center;
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 8px;
   background: linear-gradient(135deg, #0e7490, #4338ca);
   font-weight: 800;
+}
+
+.brand-mark svg {
+  width: 34px;
+  height: 34px;
+}
+
+.logo-orbit {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.78);
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.logo-orbit.alt {
+  stroke: rgba(103, 232, 249, 0.84);
+}
+
+.logo-core {
+  fill: #ffffff;
+}
+
+.brand-mark circle {
+  fill: #67e8f9;
 }
 
 .brand-name {
@@ -636,6 +660,156 @@ h3 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.revenue-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.revenue-total {
+  min-width: 260px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(103, 232, 249, 0.16), rgba(196, 181, 253, 0.1));
+  padding: 16px;
+}
+
+.revenue-total span,
+.revenue-total em {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.revenue-total strong {
+  display: block;
+  margin: 8px 0;
+  color: var(--cyan);
+  font-size: 34px;
+  line-height: 1;
+}
+
+.revenue-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.revenue-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 14px;
+}
+
+.project-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-cell strong,
+.project-cell small {
+  display: block;
+}
+
+.project-cell small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.project-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.project-icon.pinterest {
+  background: #bd081c;
+}
+
+.project-icon.kalshi {
+  background: #166534;
+}
+
+.project-icon.reels {
+  background: #0e7490;
+}
+
+.project-icon.eais {
+  background: #4338ca;
+}
+
+.revenue-table td:nth-child(4),
+.revenue-table td:nth-child(5) {
+  color: var(--cyan);
+  font-weight: 900;
+}
+
+.revenue-bars {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.revenue-bars div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  gap: 8px;
+  align-items: center;
+}
+
+.revenue-bars span {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.revenue-bars b {
+  display: block;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--cyan), var(--violet));
+}
+
+.revenue-bars em {
+  color: var(--ink);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 900;
+  text-align: right;
+}
+
+.revenue-note {
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  padding: 14px;
+}
+
+.revenue-note strong {
+  color: var(--cyan);
+}
+
+.revenue-note p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .job-card,
 .draft-card {
   padding: 16px;
@@ -721,9 +895,20 @@ h3 {
   .lower-grid,
   .cost-grid,
   .video-grid,
+  .revenue-metric-grid,
+  .revenue-layout,
   .job-grid,
   .draft-layout {
     grid-template-columns: 1fr;
+  }
+
+  .revenue-hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .revenue-total {
+    min-width: 0;
   }
 }
 
@@ -750,5 +935,57 @@ h3 {
 
   .video-card {
     grid-template-columns: 1fr;
+  }
+
+  .revenue-table,
+  .revenue-table thead,
+  .revenue-table tbody,
+  .revenue-table tr,
+  .revenue-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .revenue-table thead {
+    display: none;
+  }
+
+  .revenue-table tr {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-top: 12px;
+    padding: 10px;
+  }
+
+  .revenue-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    border-bottom: 0;
+    padding: 8px 0;
+    text-align: right;
+  }
+
+  .revenue-table td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 900;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  .revenue-table td:first-child {
+    display: block;
+    text-align: left;
+  }
+
+  .revenue-table td:first-child::before {
+    display: none;
+  }
+
+  .project-cell {
+    align-items: flex-start;
   }
 }
