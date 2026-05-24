@@ -57,6 +57,7 @@ Use the static mockup as the visual contract:
 - Always-visible Jarvis chat dock.
 - Futuristic top command header with subtle motion, not flashy marketing UI.
 - Dashboard-first experience, not a landing page.
+- The daily morning email briefing should use the same EAIS brand palette and executive command-center feel.
 
 ## Recommended Architecture
 
