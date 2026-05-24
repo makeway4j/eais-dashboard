@@ -173,14 +173,16 @@ Completed:
 - Added EAIS SQLite database at `/opt/eais/data/eais.db`.
 - Imported 2,967 legacy digest items from `/opt/digest/digest.db` into EAIS.
 - Recorded one successful `import-digest` run in EAIS `run_history`.
+- Added and installed `eais-dashboard.service` on CT 301.
+- Started the EAIS web/API service on `127.0.0.1:8788`.
+- Verified `/api/health`, `/api/summary`, `/api/items`, and dashboard HTML through a local SSH tunnel.
 
 Remaining:
 
-1. Install and verify `eais-dashboard.service`.
-2. Add dashboard API hydration for more views beyond Today.
-3. Add a systemd timer for the 6 AM daily briefing.
-4. Keep old `/opt/digest` cron enabled until EAIS can produce a confirmed daily brief.
-5. After EAIS sends a verified email and saves to Joplin, disable or archive the old digest cron.
+1. Add dashboard API hydration for more views beyond Today.
+2. Add a systemd timer for the 6 AM daily briefing.
+3. Keep old `/opt/digest` cron enabled until EAIS can produce a confirmed daily brief.
+4. After EAIS sends a verified email and saves to Joplin, disable or archive the old digest cron.
 
 ## Security Blockers Before External Access
 
