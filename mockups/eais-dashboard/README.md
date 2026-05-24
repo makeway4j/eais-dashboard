@@ -17,4 +17,12 @@ Views included:
 - Social Drafts
 - System
 
+Current design direction:
+
+- Dark executive command-center theme.
+- Live date and time in the top bar.
+- Daily motivational operating thought.
+- API and token cost guardrails.
+- YouTube intelligence queue for videos to summarize or turn into briefing/social inputs.
+
 This is intentionally static and code-native. It is meant to validate information architecture, density, and dashboard direction before building the production `/opt/eais` app.

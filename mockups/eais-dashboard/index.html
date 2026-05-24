@@ -56,6 +56,10 @@
           <div>
             <h1>Today</h1>
             <p>6 AM briefing, source health, and active intelligence queue.</p>
+            <div class="clock-line" aria-live="polite">
+              <span id="today-date">May 24, 2026</span>
+              <span id="today-time">--:-- --</span>
+            </div>
           </div>
           <div class="top-actions">
             <button class="icon-button" title="Refresh digest" type="button">
@@ -88,6 +92,11 @@
               <span class="metric-label">Cost Guard</span>
               <strong>$0.38</strong>
               <span class="metric-note positive">daily estimate</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Token Use</span>
+              <strong>42.8k</strong>
+              <span class="metric-note">OpenAI + Gemini budget watch</span>
             </article>
           </div>
 
@@ -162,6 +171,94 @@
               <button class="full-button" type="button">Preview HTML Email</button>
             </aside>
           </div>
+
+          <div class="lower-grid">
+            <section class="panel api-panel">
+              <div class="panel-header">
+                <div>
+                  <h2>API & Token Cost</h2>
+                  <p>Daily guardrails for summaries, scoring, and future social/job agents.</p>
+                </div>
+                <span class="status-pill good">Under Budget</span>
+              </div>
+              <div class="cost-grid">
+                <article>
+                  <span>OpenAI</span>
+                  <strong>$0.24</strong>
+                  <p>31.2k tokens</p>
+                </article>
+                <article>
+                  <span>Gemini</span>
+                  <strong>$0.09</strong>
+                  <p>8.6k tokens</p>
+                </article>
+                <article>
+                  <span>Local Ollama</span>
+                  <strong>$0.00</strong>
+                  <p>Kora fallback</p>
+                </article>
+                <article>
+                  <span>Daily Cap</span>
+                  <strong>$2.00</strong>
+                  <p>hard stop planned</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="panel quote-panel">
+              <div class="panel-header compact">
+                <h2>Daily Operating Thought</h2>
+                <span class="status-pill neutral">Rotates</span>
+              </div>
+              <blockquote id="daily-quote">Build the system that makes the right action obvious.</blockquote>
+              <p>Used in the morning briefing header and dashboard start page.</p>
+            </section>
+          </div>
+
+          <section class="panel video-panel">
+            <div class="panel-header">
+              <div>
+                <h2>YouTube Intelligence Queue</h2>
+                <p>Videos to review, summarize, or turn into social/job intelligence.</p>
+              </div>
+              <button class="command-button" type="button">Add Channel</button>
+            </div>
+            <div class="video-grid">
+              <article class="video-card">
+                <div class="video-thumb">
+                  <span>AI</span>
+                  <b>12:48</b>
+                </div>
+                <div>
+                  <h3>Local AI agents running inside a homelab</h3>
+                  <p>Good fit for EAIS architecture and Kora/Ollama fallback ideas.</p>
+                  <span class="video-meta">Watch later - 88 relevance</span>
+                </div>
+              </article>
+              <article class="video-card">
+                <div class="video-thumb power">
+                  <span>DC</span>
+                  <b>18:02</b>
+                </div>
+                <div>
+                  <h3>Why power is the new bottleneck for AI data centers</h3>
+                  <p>Infrastructure context for the data center section and LinkedIn drafts.</p>
+                  <span class="video-meta">Summarize - 91 relevance</span>
+                </div>
+              </article>
+              <article class="video-card">
+                <div class="video-thumb policy">
+                  <span>GOV</span>
+                  <b>09:35</b>
+                </div>
+                <div>
+                  <h3>AI governance rules executives should track</h3>
+                  <p>Useful for the daily governance watchlist and weekly recap.</p>
+                  <span class="video-meta">Queue - 79 relevance</span>
+                </div>
+              </article>
+            </div>
+          </section>
         </section>
 
         <section class="view" id="view-sources">

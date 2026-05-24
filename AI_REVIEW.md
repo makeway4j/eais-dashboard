@@ -28,12 +28,14 @@ Set up the home-lab development project for a daily 6:00 AM HTML AI/AI-governanc
   - Disabled the local Windows scheduled task after confirming the desktop turns off at night.
   - Added Linux systemd deployment scripts and homelab deployment docs.
   - Added a static EAIS dashboard mockup under `mockups/eais-dashboard`.
+  - Iterated the mockup into a dark futuristic command-center theme with date/time, rotating quote, API/token cost, and YouTube queue sections.
 - Known issues:
   - Gmail credentials are not configured yet.
   - OpenAI summarization is disabled until `OPENAI_API_KEY` and `ENABLE_OPENAI_SUMMARY=true` are set.
   - Anthropic does not currently have a working official RSS feed in the source list.
   - Homelab host deployment is pending target confirmation.
   - Dashboard mockup is static and not connected to `/opt/digest` or live EAIS data yet.
+  - YouTube queue uses sample content; actual preferred channels/videos still need user criteria.
   - LinkedIn/X posting and job recommendations are planned but intentionally separate.
 
 ## Claude Review Checklist
