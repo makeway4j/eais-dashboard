@@ -190,6 +190,15 @@ Remaining:
 3. Keep old `/opt/digest` cron enabled until EAIS can produce a confirmed daily brief.
 4. After EAIS sends a verified email and saves to Joplin, disable or archive the old digest cron.
 
+## Joplin Integration Notes
+
+- Intended Joplin API base from CT 301: `http://192.168.5.153:41184`.
+- CT 301 is configured with that API base, but keeps `JOPLIN_SAVE_MODE=local` until the token and notebook are ready.
+- Current CT 301 reachability check to `192.168.5.153:41184` returned connection refused, so CT 111 may not be listening on that port yet.
+- Existing JARVIS notebook id noted by the user: `fd981`.
+- Recommended: create a separate EAIS notebook in Joplin and use its notebook id for `JOPLIN_NOTEBOOK_ID`.
+- Needed before switching to API archive mode: `JOPLIN_TOKEN`, confirmed port reachability from CT 301, and the EAIS notebook id.
+
 ## Security Blockers Before External Access
 
 - Rotate Gemini key.
