@@ -176,11 +176,12 @@ Completed:
 - Added and installed `eais-dashboard.service` on CT 301.
 - Started the EAIS web/API service on `127.0.0.1:8788`.
 - Verified `/api/health`, `/api/summary`, `/api/items`, and dashboard HTML through a local SSH tunnel.
+- Added live API hydration for the Sources, History, and System dashboard views.
 
 Remaining:
 
-1. Add dashboard API hydration for more views beyond Today.
-2. Add a systemd timer for the 6 AM daily briefing.
+1. Add a systemd timer for the 6 AM daily briefing.
+2. Add Joplin save/export for daily brief archives.
 3. Keep old `/opt/digest` cron enabled until EAIS can produce a confirmed daily brief.
 4. After EAIS sends a verified email and saves to Joplin, disable or archive the old digest cron.
 

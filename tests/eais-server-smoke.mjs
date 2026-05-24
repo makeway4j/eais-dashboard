@@ -39,6 +39,9 @@ try {
   const health = await fetch(`${baseUrl}/api/health`).then((response) => response.json());
   const summary = await fetch(`${baseUrl}/api/summary`).then((response) => response.json());
   const items = await fetch(`${baseUrl}/api/items?triage=SIGNAL&limit=1`).then((response) => response.json());
+  const sources = await fetch(`${baseUrl}/api/sources`).then((response) => response.json());
+  const history = await fetch(`${baseUrl}/api/history`).then((response) => response.json());
+  const system = await fetch(`${baseUrl}/api/system`).then((response) => response.json());
   const html = await fetch(baseUrl).then((response) => response.text());
 
   if (!health.ok || health.service !== "eais-dashboard") {
@@ -51,6 +54,18 @@ try {
 
   if (items.items[0]?.title !== "Server test signal") {
     throw new Error("Expected items endpoint to return the test signal.");
+  }
+
+  if (sources.sources[0]?.category !== "ai") {
+    throw new Error("Expected sources endpoint to group the test signal category.");
+  }
+
+  if (history.history[0]?.itemCount !== 1 || history.topicMix[0]?.category !== "ai") {
+    throw new Error("Expected history endpoint to summarize the test signal.");
+  }
+
+  if (system.system.importedDigestItems !== 1 || system.system.serviceStatus !== "running") {
+    throw new Error("Expected system endpoint to report dashboard and database status.");
   }
 
   if (!html.includes("EAIS Command Surface")) {

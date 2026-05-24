@@ -18,6 +18,10 @@ const jarvisEndpoint = window.EAIS_JARVIS_ENDPOINT || "";
 const calendarStatus = document.querySelector("#calendar-status");
 const calendarAccountLabel = document.querySelector("#calendar-account-label");
 const signalList = document.querySelector("#signal-list");
+const sourcesTableBody = document.querySelector("#sources-table-body");
+const historyTimeline = document.querySelector("#history-timeline");
+const topicMixList = document.querySelector("#topic-mix-list");
+const serviceList = document.querySelector("#service-list");
 let toastTimer;
 let activePlaceIndex = 0;
 let eaisApiOnline = false;
@@ -140,6 +144,43 @@ function formatItemTime(value) {
   }).format(date);
 }
 
+function formatDateShort(value) {
+  if (!value) {
+    return "Unknown";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric"
+  }).format(date);
+}
+
+function formatUptime(seconds) {
+  const value = Number(seconds || 0);
+  if (value < 60) {
+    return `${value}s`;
+  }
+  if (value < 3600) {
+    return `${Math.round(value / 60)}m`;
+  }
+  return `${Math.round(value / 3600)}h`;
+}
+
+function healthForSource(source) {
+  if (!source.itemCount) {
+    return ["neutral", "No Data"];
+  }
+  if (source.untriagedCount > source.itemCount * 0.65) {
+    return ["warn", "Needs Triage"];
+  }
+  return ["good", "Healthy"];
+}
+
 function renderSignalItems(items) {
   if (!signalList || !items?.length) {
     return;
@@ -176,6 +217,114 @@ function renderSignalItems(items) {
     body.append(meta, heading, copy);
     row.append(score, body, action);
     signalList.append(row);
+  });
+}
+
+function renderSources(sources) {
+  if (!sourcesTableBody || !sources?.length) {
+    return;
+  }
+
+  sourcesTableBody.replaceChildren();
+
+  sources.slice(0, 8).forEach((source) => {
+    const [statusClass, statusLabel] = healthForSource(source);
+    const row = document.createElement("tr");
+
+    const sourceName = document.createElement("td");
+    sourceName.textContent = `${source.category || "uncategorized"} feed`;
+
+    const sourceType = document.createElement("td");
+    sourceType.textContent = (source.source || "unknown").toUpperCase();
+
+    const topic = document.createElement("td");
+    topic.textContent = `${source.itemCount} items`;
+
+    const lastFetch = document.createElement("td");
+    lastFetch.textContent = formatItemTime(source.lastFetchedAt);
+
+    const health = document.createElement("td");
+    const pill = document.createElement("span");
+    pill.className = `status-pill ${statusClass}`;
+    pill.textContent = statusLabel;
+    health.append(pill);
+
+    const actionCell = document.createElement("td");
+    const action = document.createElement("button");
+    action.className = "text-button";
+    action.type = "button";
+    action.textContent = source.signalCount ? `${source.signalCount} signals` : "Inspect";
+    actionCell.append(action);
+
+    row.append(sourceName, sourceType, topic, lastFetch, health, actionCell);
+    sourcesTableBody.append(row);
+  });
+}
+
+function renderHistory(history, topicMix) {
+  if (historyTimeline && history?.length) {
+    historyTimeline.replaceChildren();
+
+    history.slice(0, 6).forEach((entry) => {
+      const article = document.createElement("article");
+      const time = document.createElement("time");
+      const heading = document.createElement("h3");
+      const copy = document.createElement("p");
+
+      time.textContent = formatDateShort(entry.digestDate);
+      heading.textContent = entry.topTitle || "Imported digest items";
+      copy.textContent = `${entry.itemCount} items, ${entry.signalCount} signals, ${entry.watchCount} watch, ${entry.deferredCount} deferred.`;
+
+      article.append(time, heading, copy);
+      historyTimeline.append(article);
+    });
+  }
+
+  if (topicMixList && topicMix?.length) {
+    topicMixList.replaceChildren();
+    const maxItems = Math.max(...topicMix.map((topic) => topic.itemCount), 1);
+
+    topicMix.slice(0, 6).forEach((topic) => {
+      const row = document.createElement("div");
+      const label = document.createElement("span");
+      const bar = document.createElement("b");
+      label.textContent = `${topic.category} (${topic.itemCount})`;
+      bar.style.width = `${Math.max(6, Math.round((topic.itemCount / maxItems) * 100))}%`;
+      row.append(label, bar);
+      topicMixList.append(row);
+    });
+  }
+}
+
+function renderSystem(system) {
+  if (!serviceList || !system) {
+    return;
+  }
+
+  serviceList.replaceChildren();
+
+  const services = [
+    ["EAIS dashboard", String(system.port), system.serviceStatus === "running" ? "Running" : "Check", system.serviceStatus === "running" ? "ok" : "warn-text"],
+    ["EAIS database", "SQLite", `${system.importedDigestItems} items`, "ok"],
+    ["Digest import", "legacy", `${system.importedRuns} runs`, "ok"],
+    ["Today feed", "live", `${system.todayItems} items`, system.todayItems ? "ok" : "warn-text"],
+    ["Signal archive", "triage", `${system.signalItems} signals`, "ok"],
+    ["Node runtime", system.node, `up ${formatUptime(system.processUptimeSeconds)}`, "ok"]
+  ];
+
+  services.forEach(([name, port, status, className]) => {
+    const row = document.createElement("div");
+    const nameEl = document.createElement("span");
+    const portEl = document.createElement("b");
+    const statusEl = document.createElement("em");
+
+    nameEl.textContent = name;
+    portEl.textContent = port;
+    statusEl.textContent = status;
+    statusEl.className = className;
+
+    row.append(nameEl, portEl, statusEl);
+    serviceList.append(row);
   });
 }
 
@@ -221,6 +370,60 @@ async function hydrateEaisDashboard(filter = "all") {
   }
 }
 
+async function hydrateSources() {
+  if (window.location.protocol === "file:") {
+    return;
+  }
+
+  try {
+    const data = await fetchJson("/api/sources");
+    renderSources(data.sources);
+  } catch (error) {
+    console.warn(error);
+  }
+}
+
+async function hydrateHistory() {
+  if (window.location.protocol === "file:") {
+    return;
+  }
+
+  try {
+    const data = await fetchJson("/api/history?days=10");
+    renderHistory(data.history, data.topicMix);
+  } catch (error) {
+    console.warn(error);
+  }
+}
+
+async function hydrateSystem() {
+  if (window.location.protocol === "file:") {
+    return;
+  }
+
+  try {
+    const data = await fetchJson("/api/system");
+    renderSystem(data.system);
+  } catch (error) {
+    console.warn(error);
+  }
+}
+
+function hydrateView(viewName) {
+  if (viewName === "today") {
+    hydrateEaisDashboard();
+  }
+  if (viewName === "sources") {
+    hydrateSources();
+  }
+  if (viewName === "history") {
+    hydrateHistory();
+  }
+  if (viewName === "system") {
+    hydrateSystem();
+  }
+}
+
 function showView(viewName) {
   navButtons.forEach((button) => {
     button.classList.toggle("active", button.dataset.view === viewName);
@@ -233,6 +436,7 @@ function showView(viewName) {
   const copy = viewCopy[viewName] || viewCopy.today;
   title.textContent = copy[0];
   subtitle.textContent = copy[1];
+  hydrateView(viewName);
 }
 
 function showToast(message) {

@@ -3,9 +3,18 @@ import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { eaisDbPath, ensureEaisDatabase, getEaisSummary, listEaisItems } from "../eais/db.mjs";
+import {
+  eaisDbPath,
+  ensureEaisDatabase,
+  getEaisHistory,
+  getEaisSummary,
+  getEaisTopicMix,
+  listEaisItems,
+  listEaisSources
+} from "../eais/db.mjs";
 
 const projectRoot = resolve(fileURLToPath(new URL("../..", import.meta.url)));
+const currentFile = fileURLToPath(import.meta.url);
 const dashboardRoot = resolve(projectRoot, "mockups", "eais-dashboard");
 const host = process.env.EAIS_HOST || "127.0.0.1";
 const port = Number(process.env.EAIS_PORT || 8788);
@@ -103,6 +112,21 @@ async function handleApi(request, response, url, db) {
     return true;
   }
 
+  if (url.pathname === "/api/sources") {
+    sendJson(response, 200, { ok: true, sources: listEaisSources(db) });
+    return true;
+  }
+
+  if (url.pathname === "/api/history") {
+    const days = url.searchParams.get("days") || 10;
+    sendJson(response, 200, {
+      ok: true,
+      history: getEaisHistory(db, { days }),
+      topicMix: getEaisTopicMix(db)
+    });
+    return true;
+  }
+
   if (url.pathname === "/api/recent-briefings") {
     const briefings = db.prepare(`
       SELECT id, briefing_date AS briefingDate, title, sent_status AS sentStatus, item_count AS itemCount, created_at AS createdAt
@@ -124,6 +148,9 @@ async function handleApi(request, response, url, db) {
         dbPath: eaisDbPath(),
         importedDigestItems: summary.totalItems,
         importedRuns: summary.importedRuns,
+        todayItems: summary.todayItems,
+        signalItems: summary.triageCounts.SIGNAL || 0,
+        serviceStatus: "running",
         processUptimeSeconds: Math.round(process.uptime()),
         node: process.version
       }
@@ -163,7 +190,7 @@ export async function createEaisServer() {
   return server;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && resolve(process.argv[1]) === currentFile) {
   const server = await createEaisServer();
   server.listen(port, host, () => {
     console.log(`EAIS dashboard listening at http://${host}:${port}`);

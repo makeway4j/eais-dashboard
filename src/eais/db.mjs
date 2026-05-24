@@ -97,6 +97,63 @@ export function listEaisItems(db, { triage, limit = 8 } = {}) {
   `).all(params);
 }
 
+export function listEaisSources(db) {
+  return db.prepare(`
+    SELECT
+      category,
+      source,
+      COUNT(*) AS itemCount,
+      MAX(fetched_at) AS lastFetchedAt,
+      SUM(CASE WHEN triage = 'SIGNAL' THEN 1 ELSE 0 END) AS signalCount,
+      SUM(CASE WHEN triage IS NULL THEN 1 ELSE 0 END) AS untriagedCount
+    FROM items
+    GROUP BY category, source
+    ORDER BY itemCount DESC, category ASC
+  `).all();
+}
+
+export function getEaisHistory(db, { days = 10 } = {}) {
+  const normalizedDays = Math.max(1, Math.min(Number(days) || 10, 30));
+  return db.prepare(`
+    SELECT
+      date(fetched_at) AS digestDate,
+      COUNT(*) AS itemCount,
+      SUM(CASE WHEN triage = 'SIGNAL' THEN 1 ELSE 0 END) AS signalCount,
+      SUM(CASE WHEN triage = 'WATCH' THEN 1 ELSE 0 END) AS watchCount,
+      SUM(CASE WHEN triage = 'DEFERRED' THEN 1 ELSE 0 END) AS deferredCount,
+      (
+        SELECT title
+        FROM items AS ranked
+        WHERE date(ranked.fetched_at) = date(items.fetched_at)
+          AND title IS NOT NULL
+          AND trim(title) != ''
+        ORDER BY
+          CASE triage
+            WHEN 'SIGNAL' THEN 1
+            WHEN 'WATCH' THEN 2
+            WHEN 'DEFERRED' THEN 3
+            ELSE 4
+          END,
+          COALESCE(score, 0) DESC
+        LIMIT 1
+      ) AS topTitle
+    FROM items
+    GROUP BY date(fetched_at)
+    ORDER BY digestDate DESC
+    LIMIT ${normalizedDays}
+  `).all();
+}
+
+export function getEaisTopicMix(db) {
+  return db.prepare(`
+    SELECT category, COUNT(*) AS itemCount
+    FROM items
+    GROUP BY category
+    ORDER BY itemCount DESC
+    LIMIT 8
+  `).all();
+}
+
 export async function importLegacyDigest(db, digestPath = legacyDigestDbPath()) {
   const before = tableCount(db, "items");
   const escapedPath = quoteSqlString(digestPath);
