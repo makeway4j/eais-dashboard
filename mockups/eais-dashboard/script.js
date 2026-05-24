@@ -5,6 +5,7 @@ const subtitle = document.querySelector(".topbar p");
 const dateEl = document.querySelector("#today-date");
 const timeEl = document.querySelector("#today-time");
 const quoteEl = document.querySelector("#daily-quote");
+let toastTimer;
 
 const dailyQuotes = [
   "Build the system that makes the right action obvious.",
@@ -42,12 +43,87 @@ function showView(viewName) {
   subtitle.textContent = copy[1];
 }
 
+function showToast(message) {
+  let toast = document.querySelector(".demo-toast");
+
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.className = "demo-toast";
+    toast.setAttribute("role", "status");
+    document.body.append(toast);
+  }
+
+  toast.textContent = message;
+  toast.classList.add("show");
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2200);
+}
+
 navButtons.forEach((button) => {
   button.addEventListener("click", () => {
     showView(button.dataset.view);
     const url = new URL(window.location.href);
     url.searchParams.set("view", button.dataset.view);
     window.history.replaceState({}, "", url);
+  });
+});
+
+document.querySelectorAll(".segmented-control").forEach((control) => {
+  control.addEventListener("click", (event) => {
+    const selectedButton = event.target.closest("button");
+
+    if (!selectedButton) {
+      return;
+    }
+
+    control.querySelectorAll("button").forEach((button) => {
+      button.classList.toggle("selected", button === selectedButton);
+    });
+
+    showToast(`${selectedButton.textContent.trim()} view selected`);
+  });
+});
+
+document.querySelectorAll(".row-action, .command-button, .full-button, .text-button, .icon-button").forEach((button) => {
+  button.addEventListener("click", () => {
+    const label = button.getAttribute("title") || button.textContent.trim();
+
+    if (button.classList.contains("nav-item")) {
+      return;
+    }
+
+    if (button.textContent.trim() === "Approve") {
+      button.textContent = "Approved";
+      button.disabled = true;
+      button.closest(".draft-card")?.classList.add("is-complete");
+      showToast("Draft marked approved");
+      return;
+    }
+
+    if (button.textContent.trim() === "Save to Joplin" || button.textContent.trim() === "Save Daily Brief") {
+      showToast("Demo: briefing saved to Joplin archive");
+      return;
+    }
+
+    if (button.textContent.trim() === "Preview HTML Email") {
+      showToast("Demo: opening HTML email preview");
+      showView("today");
+      return;
+    }
+
+    showToast(`Demo action: ${label}`);
+  });
+});
+
+document.querySelectorAll(".check-row input").forEach((checkbox) => {
+  const row = checkbox.closest(".check-row");
+  row?.classList.toggle("is-complete", checkbox.checked);
+
+  checkbox.addEventListener("change", () => {
+    row?.classList.toggle("is-complete", checkbox.checked);
+    showToast(checkbox.checked ? "Checklist item completed" : "Checklist item reopened");
   });
 });
 
