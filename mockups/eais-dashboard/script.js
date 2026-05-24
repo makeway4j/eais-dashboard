@@ -24,6 +24,7 @@ const viewCopy = {
   revenue: ["Revenue Streams", "Projected income, active projects, confidence, and next actions."],
   vision: ["Vision Board", "Goals, lifestyle targets, and saved objects tied to revenue milestones."],
   social: ["Social Drafts", "Approval-first LinkedIn and X drafts from high-confidence stories."],
+  planner: ["Planner", "Project calendar, cron run windows, checklist, and backlog."],
   system: ["System", "Homelab services, deployment health, and launch checklist."]
 };
 

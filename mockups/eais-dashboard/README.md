@@ -17,6 +17,7 @@ Views included:
 - Revenue Streams
 - Vision Board
 - Social Drafts
+- Planner
 - System
 
 Current design direction:
@@ -27,6 +28,8 @@ Current design direction:
 - API and token cost guardrails.
 - YouTube intelligence queue for videos to summarize or turn into briefing/social inputs.
 - Revenue stream tracking for Pinterest, KalshiEdge, RepoReel/ClipEngine, EAIS reports, and future income projects.
+- Project calendar for EAIS, Sunkissed, fitness, RepoReel, KalshiEdge, and other recurring runs.
+- Project checklist and backlog sections for launch tasks, cron work, and future dashboard features.
 - Joplin save/archive actions for daily briefings.
 - Vision board for goals and items such as Lucid Gravity and TUMI backpack.
 

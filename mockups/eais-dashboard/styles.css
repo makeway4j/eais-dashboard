@@ -435,6 +435,7 @@ h3 {
   cursor: pointer;
   font-size: 13px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .row-action,
@@ -1014,6 +1015,186 @@ h3 {
   margin-top: 14px;
 }
 
+.planner-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.planner-hero > div:first-child {
+  min-width: 0;
+}
+
+.planner-next {
+  min-width: 280px;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.18), rgba(var(--subtle-rgb), 0.1));
+  padding: 16px;
+}
+
+.planner-next span,
+.planner-next em {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.planner-next strong {
+  display: block;
+  margin: 8px 0;
+  color: var(--cyan);
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.planner-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.planner-layout,
+.planner-lower {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.planner-lower {
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  margin-bottom: 0;
+}
+
+.schedule-list {
+  display: grid;
+  gap: 10px;
+}
+
+.schedule-row {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.schedule-row.active-run {
+  border-left-color: var(--accent);
+}
+
+.schedule-row time {
+  color: var(--cyan);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.schedule-row p,
+.planner-note p,
+.backlog-list p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 54px repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.calendar-grid span,
+.calendar-grid b {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 8px;
+  font-size: 12px;
+}
+
+.calendar-grid span {
+  color: var(--muted);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.calendar-grid b {
+  background: var(--panel-soft);
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.planner-note {
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  padding: 14px;
+}
+
+.planner-note strong {
+  color: var(--cyan);
+}
+
+.project-checklist {
+  display: grid;
+  gap: 0;
+}
+
+.backlog-list {
+  display: grid;
+  gap: 10px;
+}
+
+.backlog-list article {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) 70px;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 0;
+}
+
+.backlog-list em {
+  color: var(--cyan);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.priority-dot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--muted);
+}
+
+.high-priority {
+  background: var(--accent);
+}
+
+.medium-priority {
+  background: var(--accent-mid);
+}
+
+.low-priority {
+  background: var(--subtle);
+}
+
 
 .job-card,
 .draft-card {
@@ -1102,6 +1283,9 @@ h3 {
   .video-grid,
   .revenue-metric-grid,
   .revenue-layout,
+  .planner-metric-grid,
+  .planner-layout,
+  .planner-lower,
   .vision-grid,
   .vision-lower,
   .job-grid,
@@ -1110,12 +1294,14 @@ h3 {
   }
 
   .revenue-hero,
+  .planner-hero,
   .vision-hero {
     align-items: stretch;
     flex-direction: column;
   }
 
   .revenue-total,
+  .planner-next,
   .vision-focus {
     min-width: 0;
   }
@@ -1199,6 +1385,8 @@ h3 {
   }
 
   .archive-actions,
+  .backlog-list article,
+  .schedule-row,
   .goal-list div {
     align-items: stretch;
     grid-template-columns: 1fr;

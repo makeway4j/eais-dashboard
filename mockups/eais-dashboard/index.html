@@ -54,8 +54,12 @@
             <span class="nav-icon">07</span>
             <span>Social Drafts</span>
           </button>
-          <button class="nav-item" data-view="system" type="button">
+          <button class="nav-item" data-view="planner" type="button">
             <span class="nav-icon">08</span>
+            <span>Planner</span>
+          </button>
+          <button class="nav-item" data-view="system" type="button">
+            <span class="nav-icon">09</span>
             <span>System</span>
           </button>
         </nav>
@@ -681,6 +685,167 @@
                 </div>
               </article>
             </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-planner">
+          <div class="planner-hero panel">
+            <div>
+              <h2>Project Calendar</h2>
+              <p>Run windows, cron jobs, content engines, and operational tasks in one executive schedule.</p>
+            </div>
+            <div class="planner-next">
+              <span>Next Run</span>
+              <strong>Sunkissed Content Cron</strong>
+              <em>Tonight at 11:30 PM</em>
+            </div>
+          </div>
+
+          <div class="planner-metric-grid">
+            <article class="metric-card">
+              <span class="metric-label">Scheduled Jobs</span>
+              <strong>9</strong>
+              <span class="metric-note positive">6 active</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Today</span>
+              <strong>4</strong>
+              <span class="metric-note">runs to verify</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Blocked</span>
+              <strong>2</strong>
+              <span class="metric-note">needs credentials</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Backlog</span>
+              <strong>14</strong>
+              <span class="metric-note">ranked by value</span>
+            </article>
+          </div>
+
+          <div class="planner-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Run Schedule</h2>
+                  <p>Track exactly when project automation is supposed to run and what needs review afterward.</p>
+                </div>
+                <button class="command-button" type="button">Add Run</button>
+              </div>
+              <div class="schedule-list">
+                <article class="schedule-row active-run">
+                  <time>6:00 AM</time>
+                  <div>
+                    <h3>EAIS Daily Brief</h3>
+                    <p>AI governance, AI vendors, data centers, jobs, and revenue summary.</p>
+                  </div>
+                  <span class="status-pill good">Active</span>
+                </article>
+                <article class="schedule-row">
+                  <time>7:15 AM</time>
+                  <div>
+                    <h3>Fitness Cron</h3>
+                    <p>Pull fitness content ideas, draft pin topics, and queue daily wellness notes.</p>
+                  </div>
+                  <span class="status-pill good">Active</span>
+                </article>
+                <article class="schedule-row">
+                  <time>11:30 PM</time>
+                  <div>
+                    <h3>Sunkissed Content Cron</h3>
+                    <p>Skincare and lifestyle content scan for Pinterest, affiliate, and post ideas.</p>
+                  </div>
+                  <span class="status-pill warn">Watch</span>
+                </article>
+                <article class="schedule-row">
+                  <time>2:00 AM</time>
+                  <div>
+                    <h3>RepoReel Build Queue</h3>
+                    <p>Process selected repos into short-form clips and content drafts.</p>
+                  </div>
+                  <span class="status-pill neutral">Planned</span>
+                </article>
+                <article class="schedule-row">
+                  <time>Hourly</time>
+                  <div>
+                    <h3>KalshiEdge Signal Check</h3>
+                    <p>Monitor production signal health and flag shell-run service issues.</p>
+                  </div>
+                  <span class="status-pill warn">Needs unit</span>
+                </article>
+              </div>
+            </section>
+
+            <aside class="panel">
+              <h2>Weekly Run Map</h2>
+              <div class="calendar-grid" aria-label="Weekly run map">
+                <span>Mon</span><b>EAIS</b><b>Fitness</b><b>Kalshi</b>
+                <span>Tue</span><b>EAIS</b><b>Sunkissed</b><b>RepoReel</b>
+                <span>Wed</span><b>EAIS</b><b>Fitness</b><b>Review</b>
+                <span>Thu</span><b>EAIS</b><b>Sunkissed</b><b>Kalshi</b>
+                <span>Fri</span><b>EAIS</b><b>Revenue</b><b>Backlog</b>
+              </div>
+              <div class="planner-note">
+                <strong>EAIS role</strong>
+                <p>Each run should log last success, next run, owner, output link, and whether it needs a dashboard alert.</p>
+              </div>
+            </aside>
+          </div>
+
+          <div class="planner-lower">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Project Checklist</h2>
+                  <p>Launch tasks and recurring ops checks that should not disappear into notes.</p>
+                </div>
+                <button class="command-button" type="button">Add Task</button>
+              </div>
+              <div class="project-checklist">
+                <label class="check-row"><input type="checkbox" checked> Move EAIS production work to CT 301 /opt/eais</label>
+                <label class="check-row"><input type="checkbox" checked> Keep local VS Code project as the saved source of truth</label>
+                <label class="check-row"><input type="checkbox"> Create systemd timers for Sunkissed, Fitness, RepoReel, and EAIS</label>
+                <label class="check-row"><input type="checkbox"> Add run logs and failure alerts to Planner</label>
+                <label class="check-row"><input type="checkbox"> Link each run output to Joplin history</label>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Project Backlog</h2>
+                  <p>Ideas waiting for scope, priority, and a clean next action.</p>
+                </div>
+                <button class="command-button" type="button">Add Backlog Item</button>
+              </div>
+              <div class="backlog-list">
+                <article>
+                  <span class="priority-dot high-priority"></span>
+                  <div>
+                    <h3>Dashboard run history table</h3>
+                    <p>Show last run, duration, output, and failure reason for every project cron.</p>
+                  </div>
+                  <em>High</em>
+                </article>
+                <article>
+                  <span class="priority-dot medium-priority"></span>
+                  <div>
+                    <h3>Content project output links</h3>
+                    <p>Attach Pinterest drafts, RepoReel clips, and brief archives to each project.</p>
+                  </div>
+                  <em>Medium</em>
+                </article>
+                <article>
+                  <span class="priority-dot low-priority"></span>
+                  <div>
+                    <h3>Calendar export</h3>
+                    <p>Optional ICS feed so cron windows can appear on a personal calendar.</p>
+                  </div>
+                  <em>Low</em>
+                </article>
+              </div>
+            </section>
           </div>
         </section>
 
