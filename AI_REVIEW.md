@@ -25,10 +25,13 @@ Set up the home-lab development project for a daily 6:00 AM HTML AI/AI-governanc
   - Added provider guidance, source policy, and review workflow docs.
   - Read the root `C:\JCW_3\CLAUDE.md` and aligned this project with the existing homelab morning-digest Gmail SMTP TODO.
   - Added production dry-run path with live RSS ingestion, local classification, optional OpenAI summarization, SMTP sending, and daily logs.
+  - Disabled the local Windows scheduled task after confirming the desktop turns off at night.
+  - Added Linux systemd deployment scripts and homelab deployment docs.
 - Known issues:
   - Gmail credentials are not configured yet.
   - OpenAI summarization is disabled until `OPENAI_API_KEY` and `ENABLE_OPENAI_SUMMARY=true` are set.
   - Anthropic does not currently have a working official RSS feed in the source list.
+  - Homelab host deployment is pending target confirmation.
   - LinkedIn/X posting and job recommendations are planned but intentionally separate.
 
 ## Claude Review Checklist

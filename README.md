@@ -45,9 +45,13 @@ Not wired yet:
 
 ## Home-Lab Plan
 
-Run the daily digest from the always-on home lab using Windows Task Scheduler at 6:00 AM local time.
+Run the daily digest from an always-on homelab host at 6:00 AM local time.
 
 This project also maps to the root homelab TODO in `C:\JCW_3\CLAUDE.md`: upgrade the morning digest to an HTML email via Gmail SMTP, styled like Google "Your day ahead."
+
+The initial Windows scheduled task was disabled because the desktop may turn off overnight. Production should move to a Linux host with systemd. See [docs/homelab-deployment.md](docs/homelab-deployment.md).
+
+Windows-only helper, not the preferred production path:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\install-windows-task.ps1
