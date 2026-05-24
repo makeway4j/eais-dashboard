@@ -170,16 +170,18 @@ Completed:
 - Ran `npm test` successfully on CT 301.
 - Ran `npm run dry-run` successfully on CT 301.
 - Generated `/opt/eais/dist/daily-update.html` with 24 live items and no email send.
+- Added EAIS SQLite database at `/opt/eais/data/eais.db`.
+- Imported 2,967 legacy digest items from `/opt/digest/digest.db` into EAIS.
+- Recorded one successful `import-digest` run in EAIS `run_history`.
 
 Remaining:
 
-1. Run `npm run eais:init-db` on CT 301.
-2. Run `npm run eais:import-digest` on CT 301 to copy `/opt/digest/digest.db` into EAIS.
-3. Add a local web service bound to `127.0.0.1:8788`.
-4. Add a systemd service for the dashboard.
-5. Add a systemd timer for the 6 AM daily briefing.
-6. Keep old `/opt/digest` cron enabled until EAIS can produce a confirmed daily brief.
-7. After EAIS sends a verified email and saves to Joplin, disable or archive the old digest cron.
+1. Add a local web service bound to `127.0.0.1:8788`.
+2. Add dashboard API endpoints backed by `/opt/eais/data/eais.db`.
+3. Add a systemd service for the dashboard.
+4. Add a systemd timer for the 6 AM daily briefing.
+5. Keep old `/opt/digest` cron enabled until EAIS can produce a confirmed daily brief.
+6. After EAIS sends a verified email and saves to Joplin, disable or archive the old digest cron.
 
 ## Security Blockers Before External Access
 
