@@ -30,6 +30,7 @@ Set up the home-lab development project for a daily 6:00 AM HTML AI/AI-governanc
   - Added a static EAIS dashboard mockup under `mockups/eais-dashboard`.
   - Iterated the mockup into a dark futuristic command-center theme with date/time, rotating quote, API/token cost, and YouTube queue sections.
   - Added improved EAIS logo mark and Revenue Streams dashboard tab for Pinterest, KalshiEdge, RepoReel/ClipEngine, EAIS reports, totals, projections, and confidence.
+  - Added Save to Joplin actions and a Vision Board tab with Lucid Gravity and TUMI backpack goal cards.
 - Known issues:
   - Gmail credentials are not configured yet.
   - OpenAI summarization is disabled until `OPENAI_API_KEY` and `ENABLE_OPENAI_SUMMARY=true` are set.
@@ -38,6 +39,7 @@ Set up the home-lab development project for a daily 6:00 AM HTML AI/AI-governanc
   - Dashboard mockup is static and not connected to `/opt/digest` or live EAIS data yet.
   - YouTube queue uses sample content; actual preferred channels/videos still need user criteria.
   - Revenue numbers are mock projections and need real business assumptions before production use.
+  - Vision board items are mock goals; production needs actual prices, targets, saved links, and Joplin notebook mapping.
   - LinkedIn/X posting and job recommendations are planned but intentionally separate.
 
 ## Claude Review Checklist

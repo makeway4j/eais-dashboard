@@ -15,6 +15,7 @@ Views included:
 - Digest History
 - Jobs
 - Revenue Streams
+- Vision Board
 - Social Drafts
 - System
 
@@ -26,5 +27,7 @@ Current design direction:
 - API and token cost guardrails.
 - YouTube intelligence queue for videos to summarize or turn into briefing/social inputs.
 - Revenue stream tracking for Pinterest, KalshiEdge, RepoReel/ClipEngine, EAIS reports, and future income projects.
+- Joplin save/archive actions for daily briefings.
+- Vision board for goals and items such as Lucid Gravity and TUMI backpack.
 
 This is intentionally static and code-native. It is meant to validate information architecture, density, and dashboard direction before building the production `/opt/eais` app.

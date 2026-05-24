@@ -46,12 +46,16 @@
             <span class="nav-icon">05</span>
             <span>Revenue</span>
           </button>
-          <button class="nav-item" data-view="social" type="button">
+          <button class="nav-item" data-view="vision" type="button">
             <span class="nav-icon">06</span>
+            <span>Vision Board</span>
+          </button>
+          <button class="nav-item" data-view="social" type="button">
+            <span class="nav-icon">07</span>
             <span>Social Drafts</span>
           </button>
           <button class="nav-item" data-view="system" type="button">
-            <span class="nav-icon">07</span>
+            <span class="nav-icon">08</span>
             <span>System</span>
           </button>
         </nav>
@@ -178,9 +182,13 @@
                   <li>8 high priority items</li>
                   <li>5 source groups</li>
                   <li>Telegram fallback enabled</li>
+                  <li>Joplin archive ready</li>
                 </ul>
               </div>
-              <button class="full-button" type="button">Preview HTML Email</button>
+              <div class="output-actions">
+                <button class="full-button" type="button">Preview HTML Email</button>
+                <button class="full-button secondary" type="button">Save to Joplin</button>
+              </div>
             </aside>
           </div>
 
@@ -557,6 +565,89 @@
                 <p>Track projected income, confidence, blockers, and next actions for every money-making project.</p>
               </div>
             </aside>
+          </div>
+        </section>
+
+        <section class="view" id="view-vision">
+          <div class="vision-hero panel">
+            <div>
+              <h2>Vision Board</h2>
+              <p>Goals, things to buy, places to go, and lifestyle targets tied back to revenue streams.</p>
+            </div>
+            <div class="vision-focus">
+              <span>Current Focus</span>
+              <strong>Build income engines</strong>
+              <em>then convert targets into milestones</em>
+            </div>
+          </div>
+
+          <div class="vision-grid">
+            <article class="vision-card featured">
+              <img src="./assets/lucid-gravity.jpg" alt="Lucid Gravity SUV">
+              <div class="vision-card-body">
+                <span class="vision-type">Vehicle Goal</span>
+                <h3>Lucid Gravity</h3>
+                <p>Long-range executive EV target. Tie to revenue milestones and monthly reserve plan.</p>
+                <div class="vision-progress">
+                  <span>Target progress</span>
+                  <b><i style="width:18%"></i></b>
+                  <em>18%</em>
+                </div>
+              </div>
+            </article>
+
+            <article class="vision-card">
+              <img src="./assets/tumi-navigation-backpack.jpg" alt="TUMI Navigation Backpack">
+              <div class="vision-card-body">
+                <span class="vision-type">Gear Goal</span>
+                <h3>TUMI Navigation Backpack</h3>
+                <p>Daily executive carry upgrade. Good reward for first EAIS revenue milestone.</p>
+                <div class="vision-progress">
+                  <span>Target progress</span>
+                  <b><i style="width:72%"></i></b>
+                  <em>72%</em>
+                </div>
+              </div>
+            </article>
+
+            <article class="vision-card text-vision">
+              <div class="vision-card-body">
+                <span class="vision-type">System Goal</span>
+                <h3>EAIS operating from anywhere</h3>
+                <p>Dashboard on eais.muvazio.com with daily briefs, revenue, jobs, Joplin archive, and homelab service health.</p>
+                <div class="vision-progress">
+                  <span>Launch progress</span>
+                  <b><i style="width:41%"></i></b>
+                  <em>41%</em>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="vision-lower">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Goal Backlog</h2>
+                  <p>Track ideas before they become purchases, projects, or revenue targets.</p>
+                </div>
+                <button class="command-button" type="button">Add Vision Item</button>
+              </div>
+              <div class="goal-list">
+                <div><span>Home office refresh</span><b>Research</b><em>medium</em></div>
+                <div><span>Dallas AI operator meetup</span><b>Plan</b><em>low</em></div>
+                <div><span>EAIS first paid report package</span><b>Build</b><em>high</em></div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <h2>Joplin Archive</h2>
+              <p class="archive-copy">Daily briefs should autosave to EAIS history and Joplin. The manual button is for resaves, special reports, and notable items.</p>
+              <div class="archive-actions">
+                <button class="command-button" type="button">Save Daily Brief</button>
+                <button class="text-button" type="button">Open Joplin Note</button>
+              </div>
+            </section>
           </div>
         </section>
 

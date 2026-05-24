@@ -22,6 +22,7 @@ const viewCopy = {
   history: ["Digest History", "Search previous briefings, decisions, and saved intelligence."],
   jobs: ["Jobs", "Recommendations scored by fit, upside, urgency, and effort."],
   revenue: ["Revenue Streams", "Projected income, active projects, confidence, and next actions."],
+  vision: ["Vision Board", "Goals, lifestyle targets, and saved objects tied to revenue milestones."],
   social: ["Social Drafts", "Approval-first LinkedIn and X drafts from high-confidence stories."],
   system: ["System", "Homelab services, deployment health, and launch checklist."]
 };
