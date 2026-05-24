@@ -161,16 +161,25 @@ Use `/opt/digest` as a data/source migration input, not the production app direc
 
 ## First Implementation Checklist
 
-1. Create the `/opt/eais` directory on CT 301.
-2. Clone `makeway4j/eais-dashboard` into `/opt/eais` or deploy a clean build artifact there.
-3. Add production `.env` with dry-run defaults only.
-4. Create an EAIS database with tables from `docs/eais-production-spec.md`.
-5. Add import job that reads `/opt/digest/digest.db` and copies items into EAIS.
-6. Add a local web service bound to `127.0.0.1:8788`.
-7. Add a systemd service for the dashboard.
-8. Add a systemd timer for the 6 AM daily briefing.
-9. Keep old `/opt/digest` cron enabled until EAIS can produce a confirmed daily brief.
-10. After EAIS sends a verified email and saves to Joplin, disable or archive the old digest cron.
+Completed:
+
+- Created `/opt/eais` on CT 301.
+- Cloned `makeway4j/eais-dashboard` into `/opt/eais`.
+- Installed production npm dependencies with `npm install --omit=dev`.
+- Added server-only `.env` with dry-run defaults.
+- Ran `npm test` successfully on CT 301.
+- Ran `npm run dry-run` successfully on CT 301.
+- Generated `/opt/eais/dist/daily-update.html` with 24 live items and no email send.
+
+Remaining:
+
+1. Create an EAIS database with tables from `docs/eais-production-spec.md`.
+2. Add import job that reads `/opt/digest/digest.db` and copies items into EAIS.
+3. Add a local web service bound to `127.0.0.1:8788`.
+4. Add a systemd service for the dashboard.
+5. Add a systemd timer for the 6 AM daily briefing.
+6. Keep old `/opt/digest` cron enabled until EAIS can produce a confirmed daily brief.
+7. After EAIS sends a verified email and saves to Joplin, disable or archive the old digest cron.
 
 ## Security Blockers Before External Access
 
@@ -183,7 +192,7 @@ Use `/opt/digest` as a data/source migration input, not the production app direc
 
 ## Immediate Next Command Set
 
-Run only after confirming the build start:
+Initial build start completed:
 
 ```bash
 ssh -J root@192.168.5.77 root@192.168.5.156
@@ -192,6 +201,7 @@ cd /opt/eais
 git clone https://github.com/makeway4j/eais-dashboard.git .
 npm install --omit=dev
 npm test
+npm run dry-run
 ```
 
 Then add production service files after the app skeleton is ready.
