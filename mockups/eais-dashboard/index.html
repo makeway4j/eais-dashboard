@@ -191,16 +191,16 @@
             <aside class="panel briefing-card">
               <div class="panel-header compact">
                 <h2>6 AM Output</h2>
-                <span class="status-pill good">Ready</span>
+                <span class="status-pill good" id="brief-status">Ready</span>
               </div>
               <div class="brief-preview">
-                <div class="brief-title">AI Daily Briefing</div>
-                <p>Top governance and infrastructure signals are ready for the morning email.</p>
+                <div class="brief-title" id="brief-title">AI Daily Briefing</div>
+                <p id="brief-summary">Top governance and infrastructure signals are ready for the morning email.</p>
                 <ul>
-                  <li>8 high priority items</li>
-                  <li>5 source groups</li>
-                  <li>Telegram fallback enabled</li>
-                  <li>Joplin archive ready</li>
+                  <li id="brief-high-priority">8 high priority items</li>
+                  <li id="brief-source-count">5 source groups</li>
+                  <li id="brief-email-status">Email dry-run mode</li>
+                  <li id="brief-archive-status">Joplin archive ready</li>
                 </ul>
               </div>
               <div class="output-actions">
@@ -741,7 +741,7 @@
 
             <section class="panel">
               <h2>Joplin Archive</h2>
-              <p class="archive-copy">Daily briefs should autosave to EAIS history and Joplin. The manual button is for resaves, special reports, and notable items.</p>
+              <p class="archive-copy" id="joplin-archive-copy">Daily briefs should autosave to EAIS history and Joplin. The manual button is for resaves, special reports, and notable items.</p>
               <div class="archive-actions">
                 <button class="command-button" type="button">Save Daily Brief</button>
                 <button class="text-button" type="button">Open Joplin Note</button>
@@ -791,21 +791,21 @@
             </div>
             <div class="planner-next">
               <span>Next Run</span>
-              <strong>Sunkissed Content Cron</strong>
-              <em>Tonight at 11:30 PM</em>
+              <strong id="planner-next-run-title">Sunkissed Content Cron</strong>
+              <em id="planner-next-run-time">Tonight at 11:30 PM</em>
             </div>
           </div>
 
           <div class="planner-metric-grid">
             <article class="metric-card">
               <span class="metric-label">Scheduled Jobs</span>
-              <strong>9</strong>
-              <span class="metric-note positive">6 active</span>
+              <strong id="planner-scheduled-count">9</strong>
+              <span class="metric-note positive" id="planner-scheduled-note">6 active</span>
             </article>
             <article class="metric-card">
               <span class="metric-label">Today</span>
-              <strong>4</strong>
-              <span class="metric-note">runs to verify</span>
+              <strong id="planner-today-count">4</strong>
+              <span class="metric-note" id="planner-today-note">runs to verify</span>
             </article>
             <article class="metric-card">
               <span class="metric-label">Blocked</span>
@@ -872,7 +872,7 @@
                 </div>
                 <button class="command-button" type="button">Add Run</button>
               </div>
-              <div class="schedule-list">
+              <div class="schedule-list" id="run-schedule-list">
                 <article class="schedule-row active-run">
                   <time>6:00 AM</time>
                   <div>

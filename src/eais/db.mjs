@@ -154,6 +154,53 @@ export function getEaisTopicMix(db) {
   `).all();
 }
 
+export function listRecentBriefings(db, { limit = 10 } = {}) {
+  const normalizedLimit = Math.max(1, Math.min(Number(limit) || 10, 30));
+  return db.prepare(`
+    SELECT
+      id,
+      briefing_date AS briefingDate,
+      title,
+      html_path AS htmlPath,
+      sent_status AS sentStatus,
+      sent_at AS sentAt,
+      joplin_note_id AS joplinNoteId,
+      item_count AS itemCount,
+      high_priority_count AS highPriorityCount,
+      created_at AS createdAt,
+      updated_at AS updatedAt
+    FROM briefings
+    ORDER BY briefing_date DESC, id DESC
+    LIMIT ${normalizedLimit}
+  `).all();
+}
+
+export function listRunHistory(db, { limit = 10 } = {}) {
+  const normalizedLimit = Math.max(1, Math.min(Number(limit) || 10, 50));
+  return db.prepare(`
+    SELECT
+      id,
+      job_name AS jobName,
+      started_at AS startedAt,
+      finished_at AS finishedAt,
+      status,
+      details,
+      log_path AS logPath
+    FROM run_history
+    ORDER BY started_at DESC, id DESC
+    LIMIT ${normalizedLimit}
+  `).all().map((run) => {
+    let details = {};
+    try {
+      details = run.details ? JSON.parse(run.details) : {};
+    } catch {
+      details = { raw: run.details };
+    }
+
+    return { ...run, details };
+  });
+}
+
 export function recordRunStart(db, jobName, details = {}) {
   const result = db.prepare(`
     INSERT INTO run_history (job_name, status, details)

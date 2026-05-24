@@ -22,6 +22,21 @@ const sourcesTableBody = document.querySelector("#sources-table-body");
 const historyTimeline = document.querySelector("#history-timeline");
 const topicMixList = document.querySelector("#topic-mix-list");
 const serviceList = document.querySelector("#service-list");
+const briefStatus = document.querySelector("#brief-status");
+const briefTitle = document.querySelector("#brief-title");
+const briefSummary = document.querySelector("#brief-summary");
+const briefHighPriority = document.querySelector("#brief-high-priority");
+const briefSourceCount = document.querySelector("#brief-source-count");
+const briefEmailStatus = document.querySelector("#brief-email-status");
+const briefArchiveStatus = document.querySelector("#brief-archive-status");
+const joplinArchiveCopy = document.querySelector("#joplin-archive-copy");
+const plannerNextRunTitle = document.querySelector("#planner-next-run-title");
+const plannerNextRunTime = document.querySelector("#planner-next-run-time");
+const plannerScheduledCount = document.querySelector("#planner-scheduled-count");
+const plannerScheduledNote = document.querySelector("#planner-scheduled-note");
+const plannerTodayCount = document.querySelector("#planner-today-count");
+const plannerTodayNote = document.querySelector("#planner-today-note");
+const runScheduleList = document.querySelector("#run-schedule-list");
 let toastTimer;
 let activePlaceIndex = 0;
 let eaisApiOnline = false;
@@ -171,6 +186,36 @@ function formatUptime(seconds) {
   return `${Math.round(value / 3600)}h`;
 }
 
+function formatSystemdTime(value) {
+  if (!value || value === "n/a") {
+    return "Not scheduled";
+  }
+
+  const normalized = value.replace(/^\w+\s+(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})\s+UTC$/, "$1T$2Z");
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "America/Chicago"
+  }).format(date);
+}
+
+function statusClass(status) {
+  if (["success", "sent", "active", "running", "saved-local", "saved-api"].includes(status)) {
+    return "good";
+  }
+  if (["dry-run", "watch", "running"].includes(status)) {
+    return "warn";
+  }
+  return "neutral";
+}
+
 function healthForSource(source) {
   if (!source.itemCount) {
     return ["neutral", "No Data"];
@@ -261,9 +306,23 @@ function renderSources(sources) {
   });
 }
 
-function renderHistory(history, topicMix) {
-  if (historyTimeline && history?.length) {
+function renderHistory(history, topicMix, briefings = []) {
+  if (historyTimeline && (history?.length || briefings?.length)) {
     historyTimeline.replaceChildren();
+
+    briefings.slice(0, 3).forEach((briefing) => {
+      const article = document.createElement("article");
+      const time = document.createElement("time");
+      const heading = document.createElement("h3");
+      const copy = document.createElement("p");
+
+      time.textContent = formatDateShort(briefing.briefingDate);
+      heading.textContent = briefing.title || "EAIS daily briefing";
+      copy.textContent = `${briefing.itemCount} items, ${briefing.highPriorityCount || 0} high priority, ${briefing.sentStatus}. ${briefing.joplinNoteId ? "Archive saved." : "Archive pending."}`;
+
+      article.append(time, heading, copy);
+      historyTimeline.append(article);
+    });
 
     history.slice(0, 6).forEach((entry) => {
       const article = document.createElement("article");
@@ -296,6 +355,86 @@ function renderHistory(history, topicMix) {
   }
 }
 
+function renderOps(ops) {
+  if (!ops) {
+    return;
+  }
+
+  const latestBriefing = ops.briefings?.[0];
+  const latestRun = ops.runHistory?.find((run) => run.jobName === "daily-brief") || ops.runHistory?.[0];
+  const timerActive = ops.timer?.activeState === "active";
+
+  if (latestBriefing) {
+    if (briefStatus) {
+      briefStatus.textContent = latestBriefing.sentStatus === "sent" ? "Sent" : "Dry Run";
+      briefStatus.className = `status-pill ${latestBriefing.sentStatus === "sent" ? "good" : "warn"}`;
+    }
+    if (briefTitle) briefTitle.textContent = latestBriefing.title || "AI Daily Briefing";
+    if (briefSummary) {
+      briefSummary.textContent = `Latest briefing generated ${formatDateShort(latestBriefing.createdAt)} with ${latestBriefing.itemCount} live items.`;
+    }
+    if (briefHighPriority) briefHighPriority.textContent = `${latestBriefing.highPriorityCount || 0} high priority items`;
+    if (briefSourceCount) briefSourceCount.textContent = `${latestBriefing.itemCount || 0} total briefing items`;
+    if (briefEmailStatus) briefEmailStatus.textContent = `Email status: ${latestBriefing.sentStatus}`;
+    if (briefArchiveStatus) briefArchiveStatus.textContent = latestBriefing.joplinNoteId ? "Joplin archive saved" : "Joplin archive pending";
+    if (joplinArchiveCopy) {
+      joplinArchiveCopy.textContent = latestBriefing.joplinNoteId
+        ? `Latest archive is saved for ${latestBriefing.briefingDate}. ${latestBriefing.joplinNoteId.startsWith("local:") ? "It is currently a local markdown archive on CT 301." : "It is linked to Joplin."}`
+        : "Latest briefing is in EAIS history, but no Joplin archive id was recorded yet.";
+    }
+  }
+
+  if (plannerNextRunTitle) plannerNextRunTitle.textContent = "EAIS Daily Brief";
+  if (plannerNextRunTime) plannerNextRunTime.textContent = timerActive ? formatSystemdTime(ops.timer.nextElapse) : "Timer needs review";
+  if (plannerScheduledCount) plannerScheduledCount.textContent = timerActive ? "1" : "0";
+  if (plannerScheduledNote) plannerScheduledNote.textContent = timerActive ? "EAIS timer active" : "timer not active";
+
+  const todayRuns = (ops.runHistory || []).filter((run) => formatDateShort(run.startedAt) === formatDateShort(new Date()));
+  if (plannerTodayCount) plannerTodayCount.textContent = String(todayRuns.length || 0);
+  if (plannerTodayNote) plannerTodayNote.textContent = latestRun ? `${latestRun.jobName} ${latestRun.status}` : "no runs recorded";
+
+  if (runScheduleList) {
+    runScheduleList.replaceChildren();
+
+    const rows = [
+      {
+        time: "6:00 AM",
+        title: "EAIS Daily Brief",
+        copy: timerActive ? `Next run ${formatSystemdTime(ops.timer.nextElapse)}. Last status: ${latestRun?.status || "pending"}.` : "Systemd timer needs review.",
+        status: timerActive ? "Active" : "Check",
+        className: timerActive ? "good" : "warn"
+      },
+      ...(ops.runHistory || []).slice(0, 4).map((run) => ({
+        time: formatDateShort(run.startedAt),
+        title: run.jobName,
+        copy: run.details?.outputPath || run.details?.legacyPath || run.details?.error || "Recorded EAIS run.",
+        status: run.status,
+        className: statusClass(run.status)
+      }))
+    ];
+
+    rows.forEach((item, index) => {
+      const row = document.createElement("article");
+      row.className = `schedule-row ${index === 0 ? "active-run" : ""}`;
+      const time = document.createElement("time");
+      const body = document.createElement("div");
+      const heading = document.createElement("h3");
+      const copy = document.createElement("p");
+      const pill = document.createElement("span");
+
+      time.textContent = item.time;
+      heading.textContent = item.title;
+      copy.textContent = item.copy;
+      pill.className = `status-pill ${item.className}`;
+      pill.textContent = item.status;
+
+      body.append(heading, copy);
+      row.append(time, body, pill);
+      runScheduleList.append(row);
+    });
+  }
+}
+
 function renderSystem(system) {
   if (!serviceList || !system) {
     return;
@@ -309,6 +448,7 @@ function renderSystem(system) {
     ["Digest import", "legacy", `${system.importedRuns} runs`, "ok"],
     ["Today feed", "live", `${system.todayItems} items`, system.todayItems ? "ok" : "warn-text"],
     ["Signal archive", "triage", `${system.signalItems} signals`, "ok"],
+    ["Daily timer", system.timer?.unit || "systemd", system.timer?.activeState || "unknown", system.timer?.activeState === "active" ? "ok" : "warn-text"],
     ["Node runtime", system.node, `up ${formatUptime(system.processUptimeSeconds)}`, "ok"]
   ];
 
@@ -389,8 +529,25 @@ async function hydrateHistory() {
   }
 
   try {
-    const data = await fetchJson("/api/history?days=10");
-    renderHistory(data.history, data.topicMix);
+    const [historyData, opsData] = await Promise.all([
+      fetchJson("/api/history?days=10"),
+      fetchJson("/api/ops")
+    ]);
+    renderHistory(historyData.history, historyData.topicMix, opsData.briefings);
+    renderOps(opsData);
+  } catch (error) {
+    console.warn(error);
+  }
+}
+
+async function hydrateOps() {
+  if (window.location.protocol === "file:") {
+    return;
+  }
+
+  try {
+    const data = await fetchJson("/api/ops");
+    renderOps(data);
   } catch (error) {
     console.warn(error);
   }
@@ -412,6 +569,7 @@ async function hydrateSystem() {
 function hydrateView(viewName) {
   if (viewName === "today") {
     hydrateEaisDashboard();
+    hydrateOps();
   }
   if (viewName === "sources") {
     hydrateSources();
@@ -421,6 +579,10 @@ function hydrateView(viewName) {
   }
   if (viewName === "system") {
     hydrateSystem();
+    hydrateOps();
+  }
+  if (viewName === "planner") {
+    hydrateOps();
   }
 }
 

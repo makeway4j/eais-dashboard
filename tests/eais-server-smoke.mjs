@@ -27,6 +27,22 @@ try {
     "Server test analysis.",
     "signal"
   );
+  db.prepare(`
+    INSERT INTO briefings (briefing_date, title, html_path, sent_status, joplin_note_id, item_count, high_priority_count)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    "2026-05-24",
+    "AI Daily Briefing - May 24",
+    "/tmp/daily-update.html",
+    "dry-run",
+    "local:/tmp/2026-05-24-daily-briefing.md",
+    24,
+    7
+  );
+  db.prepare(`
+    INSERT INTO run_history (job_name, status, finished_at, details)
+    VALUES (?, ?, CURRENT_TIMESTAMP, ?)
+  `).run("daily-brief", "success", JSON.stringify({ outputPath: "/tmp/daily-update.html" }));
   db.close();
 
   const { createEaisServer } = await import("../src/server/eais-server.mjs");
@@ -42,6 +58,8 @@ try {
   const sources = await fetch(`${baseUrl}/api/sources`).then((response) => response.json());
   const history = await fetch(`${baseUrl}/api/history`).then((response) => response.json());
   const system = await fetch(`${baseUrl}/api/system`).then((response) => response.json());
+  const briefings = await fetch(`${baseUrl}/api/recent-briefings`).then((response) => response.json());
+  const ops = await fetch(`${baseUrl}/api/ops`).then((response) => response.json());
   const html = await fetch(baseUrl).then((response) => response.text());
 
   if (!health.ok || health.service !== "eais-dashboard") {
@@ -66,6 +84,14 @@ try {
 
   if (system.system.importedDigestItems !== 1 || system.system.serviceStatus !== "running") {
     throw new Error("Expected system endpoint to report dashboard and database status.");
+  }
+
+  if (briefings.briefings[0]?.sentStatus !== "dry-run") {
+    throw new Error("Expected recent briefings endpoint to return the dry-run briefing.");
+  }
+
+  if (ops.briefings[0]?.joplinNoteId?.startsWith("local:") !== true || ops.runHistory[0]?.jobName !== "daily-brief") {
+    throw new Error("Expected ops endpoint to return briefing archive and run history.");
   }
 
   if (!html.includes("EAIS Command Surface")) {

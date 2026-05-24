@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 import { createServer } from "node:http";
+import { execFile } from "node:child_process";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize, resolve } from "node:path";
+import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import {
   eaisDbPath,
@@ -10,14 +12,18 @@ import {
   getEaisSummary,
   getEaisTopicMix,
   listEaisItems,
+  listRecentBriefings,
+  listRunHistory,
   listEaisSources
 } from "../eais/db.mjs";
 
+const execFileAsync = promisify(execFile);
 const projectRoot = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const currentFile = fileURLToPath(import.meta.url);
 const dashboardRoot = resolve(projectRoot, "mockups", "eais-dashboard");
 const host = process.env.EAIS_HOST || "127.0.0.1";
 const port = Number(process.env.EAIS_PORT || 8788);
+const dailyTimerUnit = process.env.EAIS_DAILY_TIMER_UNIT || "eais-daily-brief.timer";
 
 const contentTypes = {
   ".css": "text/css; charset=utf-8",
@@ -53,6 +59,49 @@ function safeStaticPath(pathname) {
   }
 
   return join(dashboardRoot, normalizedPath);
+}
+
+async function getTimerStatus(unit = dailyTimerUnit) {
+  if (process.platform === "win32") {
+    return {
+      unit,
+      available: false,
+      activeState: "unavailable",
+      nextElapse: null,
+      lastTrigger: null
+    };
+  }
+
+  try {
+    const { stdout } = await execFileAsync("systemctl", [
+      "show",
+      unit,
+      "-p",
+      "ActiveState",
+      "-p",
+      "NextElapseUSecRealtime",
+      "-p",
+      "LastTriggerUSec"
+    ], { timeout: 2000 });
+    const values = Object.fromEntries(stdout.trim().split(/\r?\n/).map((line) => line.split(/=(.*)/s).slice(0, 2)));
+
+    return {
+      unit,
+      available: true,
+      activeState: values.ActiveState || "unknown",
+      nextElapse: values.NextElapseUSecRealtime || null,
+      lastTrigger: values.LastTriggerUSec || null
+    };
+  } catch (error) {
+    return {
+      unit,
+      available: false,
+      activeState: "unknown",
+      nextElapse: null,
+      lastTrigger: null,
+      error: error.message
+    };
+  }
 }
 
 async function serveStatic(request, response, pathname) {
@@ -128,13 +177,17 @@ async function handleApi(request, response, url, db) {
   }
 
   if (url.pathname === "/api/recent-briefings") {
-    const briefings = db.prepare(`
-      SELECT id, briefing_date AS briefingDate, title, sent_status AS sentStatus, item_count AS itemCount, created_at AS createdAt
-      FROM briefings
-      ORDER BY briefing_date DESC
-      LIMIT 10
-    `).all();
-    sendJson(response, 200, { ok: true, briefings });
+    sendJson(response, 200, { ok: true, briefings: listRecentBriefings(db) });
+    return true;
+  }
+
+  if (url.pathname === "/api/ops") {
+    sendJson(response, 200, {
+      ok: true,
+      timer: await getTimerStatus(),
+      briefings: listRecentBriefings(db, { limit: 5 }),
+      runHistory: listRunHistory(db, { limit: 8 })
+    });
     return true;
   }
 
@@ -151,6 +204,7 @@ async function handleApi(request, response, url, db) {
         todayItems: summary.todayItems,
         signalItems: summary.triageCounts.SIGNAL || 0,
         serviceStatus: "running",
+        timer: await getTimerStatus(),
         processUptimeSeconds: Math.round(process.uptime()),
         node: process.version
       }
