@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EAIS Dashboard Mockup</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <div class="brand">
+          <div class="brand-mark">E</div>
+          <div>
+            <div class="brand-name">E.A.I.S.</div>
+            <div class="brand-subtitle">Executive AI Intelligence</div>
+          </div>
+        </div>
+
+        <nav class="nav-list" aria-label="Dashboard views">
+          <button class="nav-item active" data-view="today" type="button">
+            <span class="nav-icon">01</span>
+            <span>Today</span>
+          </button>
+          <button class="nav-item" data-view="sources" type="button">
+            <span class="nav-icon">02</span>
+            <span>Sources</span>
+          </button>
+          <button class="nav-item" data-view="history" type="button">
+            <span class="nav-icon">03</span>
+            <span>History</span>
+          </button>
+          <button class="nav-item" data-view="jobs" type="button">
+            <span class="nav-icon">04</span>
+            <span>Jobs</span>
+          </button>
+          <button class="nav-item" data-view="social" type="button">
+            <span class="nav-icon">05</span>
+            <span>Social Drafts</span>
+          </button>
+          <button class="nav-item" data-view="system" type="button">
+            <span class="nav-icon">06</span>
+            <span>System</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="mini-label">Deployment</div>
+          <div class="deploy-target">CT 301 /opt/eais</div>
+          <div class="deploy-url">eais.muvazio.com</div>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <h1>Today</h1>
+            <p>6 AM briefing, source health, and active intelligence queue.</p>
+          </div>
+          <div class="top-actions">
+            <button class="icon-button" title="Refresh digest" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.2-5L4 8m0 0V3m0 5h5M4 13a8 8 0 0 0 14.2 5L20 16m0 0v5m0-5h-5"/></svg>
+            </button>
+            <button class="icon-button" title="Open settings" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1A2 2 0 1 1 4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1A2 2 0 1 1 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1A2 2 0 1 1 19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6 1h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+            </button>
+          </div>
+        </header>
+
+        <section class="view active" id="view-today">
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span class="metric-label">Signals Today</span>
+              <strong>24</strong>
+              <span class="metric-note positive">8 high priority</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Source Health</span>
+              <strong>92%</strong>
+              <span class="metric-note">1 feed needs review</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Next Brief</span>
+              <strong>6:00 AM</strong>
+              <span class="metric-note">HTML email + Telegram backup</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Cost Guard</span>
+              <strong>$0.38</strong>
+              <span class="metric-note positive">daily estimate</span>
+            </article>
+          </div>
+
+          <div class="content-grid">
+            <section class="panel primary-panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Executive Briefing Queue</h2>
+                  <p>Ranked by impact, source confidence, and personal relevance.</p>
+                </div>
+                <div class="segmented-control" aria-label="Signal filter">
+                  <button class="selected" type="button">All</button>
+                  <button type="button">High</button>
+                  <button type="button">Watch</button>
+                </div>
+              </div>
+
+              <div class="signal-list">
+                <article class="signal-row high">
+                  <div class="signal-score">94</div>
+                  <div class="signal-body">
+                    <div class="row-meta">AI Governance - NIST - 18 min ago</div>
+                    <h3>New AI safety guidance changes documentation expectations</h3>
+                    <p>Likely to affect model release checklists, risk reviews, and vendor governance language.</p>
+                  </div>
+                  <button class="row-action" type="button">Review</button>
+                </article>
+                <article class="signal-row high">
+                  <div class="signal-score">89</div>
+                  <div class="signal-body">
+                    <div class="row-meta">Infrastructure - Power - 42 min ago</div>
+                    <h3>AI data center campus secures long-term energy contract</h3>
+                    <p>Power-backed capacity is becoming a durable advantage for AI infrastructure players.</p>
+                  </div>
+                  <button class="row-action" type="button">Review</button>
+                </article>
+                <article class="signal-row medium">
+                  <div class="signal-score">76</div>
+                  <div class="signal-body">
+                    <div class="row-meta">Models - OpenAI - 1 hr ago</div>
+                    <h3>Vendor release notes point to stronger enterprise controls</h3>
+                    <p>Admin policy, auditability, and data controls are moving from nice-to-have to required.</p>
+                  </div>
+                  <button class="row-action" type="button">Queue</button>
+                </article>
+                <article class="signal-row watch">
+                  <div class="signal-score">61</div>
+                  <div class="signal-body">
+                    <div class="row-meta">Markets - Funding - 2 hr ago</div>
+                    <h3>AI security startup raises round around model monitoring</h3>
+                    <p>Useful watchlist item for enterprise adoption and compliance tooling trends.</p>
+                  </div>
+                  <button class="row-action" type="button">Queue</button>
+                </article>
+              </div>
+            </section>
+
+            <aside class="panel briefing-card">
+              <div class="panel-header compact">
+                <h2>6 AM Output</h2>
+                <span class="status-pill good">Ready</span>
+              </div>
+              <div class="brief-preview">
+                <div class="brief-title">AI Daily Briefing</div>
+                <p>Top governance and infrastructure signals are ready for the morning email.</p>
+                <ul>
+                  <li>8 high priority items</li>
+                  <li>5 source groups</li>
+                  <li>Telegram fallback enabled</li>
+                </ul>
+              </div>
+              <button class="full-button" type="button">Preview HTML Email</button>
+            </aside>
+          </div>
+        </section>
+
+        <section class="view" id="view-sources">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Source Health</h2>
+                <p>Feeds, monitors, and provider APIs that power the briefing.</p>
+              </div>
+              <button class="command-button" type="button">Add Source</button>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Source</th>
+                  <th>Type</th>
+                  <th>Topic</th>
+                  <th>Last Fetch</th>
+                  <th>Health</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>OpenAI News</td>
+                  <td>RSS</td>
+                  <td>Vendors</td>
+                  <td>4 min ago</td>
+                  <td><span class="status-pill good">Healthy</span></td>
+                  <td><button class="text-button" type="button">Inspect</button></td>
+                </tr>
+                <tr>
+                  <td>NIST AI</td>
+                  <td>RSS + keyword filter</td>
+                  <td>Governance</td>
+                  <td>6 min ago</td>
+                  <td><span class="status-pill good">Healthy</span></td>
+                  <td><button class="text-button" type="button">Inspect</button></td>
+                </tr>
+                <tr>
+                  <td>Anthropic News</td>
+                  <td>Web monitor</td>
+                  <td>Vendors</td>
+                  <td>Not active</td>
+                  <td><span class="status-pill warn">Needs monitor</span></td>
+                  <td><button class="text-button" type="button">Create</button></td>
+                </tr>
+                <tr>
+                  <td>Data center deals</td>
+                  <td>Search feed</td>
+                  <td>Infrastructure</td>
+                  <td>Queued</td>
+                  <td><span class="status-pill neutral">Planned</span></td>
+                  <td><button class="text-button" type="button">Scope</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="view" id="view-history">
+          <div class="history-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Digest History</h2>
+                  <p>Searchable morning briefings and decision trail.</p>
+                </div>
+                <input class="search-input" value="data center" aria-label="Search digest history">
+              </div>
+              <div class="timeline">
+                <article>
+                  <time>May 24</time>
+                  <h3>Power-backed AI campuses, governance updates, enterprise controls</h3>
+                  <p>24 items, 8 high priority, 2 social drafts generated.</p>
+                </article>
+                <article>
+                  <time>May 23</time>
+                  <h3>Vendor controls, model monitoring, chip supply notes</h3>
+                  <p>21 items, 5 high priority, 1 job lead saved.</p>
+                </article>
+                <article>
+                  <time>May 22</time>
+                  <h3>EU policy watch and cloud capacity expansion</h3>
+                  <p>19 items, 4 high priority, 3 items deferred.</p>
+                </article>
+              </div>
+            </section>
+            <aside class="panel">
+              <h2>Topic Mix</h2>
+              <div class="bar-list">
+                <div><span>Governance</span><b style="width:72%"></b></div>
+                <div><span>Infrastructure</span><b style="width:64%"></b></div>
+                <div><span>Vendors</span><b style="width:58%"></b></div>
+                <div><span>Jobs</span><b style="width:34%"></b></div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="view" id="view-jobs">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Job Recommendations</h2>
+                <p>Fit-scored opportunities that can become application tasks.</p>
+              </div>
+              <button class="command-button" type="button">Tune Criteria</button>
+            </div>
+            <div class="job-grid">
+              <article class="job-card">
+                <div class="fit-score">91</div>
+                <h3>AI Automation Lead</h3>
+                <p>Remote - workflow automation, agent systems, executive operations.</p>
+                <span>$145k - $185k</span>
+              </article>
+              <article class="job-card">
+                <div class="fit-score">84</div>
+                <h3>AI Governance Program Manager</h3>
+                <p>Hybrid - policy, model risk, vendor management, compliance operations.</p>
+                <span>$130k - $170k</span>
+              </article>
+              <article class="job-card">
+                <div class="fit-score">78</div>
+                <h3>Data Center AI Strategy Analyst</h3>
+                <p>Remote - infrastructure markets, power procurement, AI capacity planning.</p>
+                <span>$120k - $160k</span>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-social">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Social Drafts</h2>
+                <p>Approval-first posts generated from high-confidence signals.</p>
+              </div>
+              <div class="segmented-control">
+                <button class="selected" type="button">LinkedIn</button>
+                <button type="button">X</button>
+              </div>
+            </div>
+            <div class="draft-layout">
+              <article class="draft-card">
+                <h3>Data centers are becoming energy strategy</h3>
+                <p>The interesting AI infrastructure story is not just GPUs. It is power, permitting, cooling, and who can secure capacity before demand spikes again.</p>
+                <div class="draft-actions">
+                  <button class="command-button" type="button">Approve</button>
+                  <button class="text-button" type="button">Edit</button>
+                </div>
+              </article>
+              <article class="draft-card">
+                <h3>AI governance is turning into operating discipline</h3>
+                <p>Model policy used to feel abstract. The new signal is practical: documentation, evals, audit trails, and incident processes are becoming table stakes.</p>
+                <div class="draft-actions">
+                  <button class="command-button" type="button">Approve</button>
+                  <button class="text-button" type="button">Edit</button>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-system">
+          <div class="system-grid">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Homelab Services</h2>
+                  <p>Future dashboard integrations from CT 301.</p>
+                </div>
+              </div>
+              <div class="service-list">
+                <div><span>code-server</span><b>8080</b><em class="ok">Running</em></div>
+                <div><span>ClipEngine</span><b>8765</b><em class="ok">Running</em></div>
+                <div><span>KalshiEdge backend</span><b>8766</b><em class="warn-text">Shell-run</em></div>
+                <div><span>RepoReel</span><b>8767</b><em class="ok">Running</em></div>
+                <div><span>EAIS dashboard</span><b>3210</b><em class="planned">Planned</em></div>
+              </div>
+            </section>
+            <section class="panel">
+              <h2>Pre-Launch Checklist</h2>
+              <label class="check-row"><input type="checkbox" checked> Preserve /opt/digest data</label>
+              <label class="check-row"><input type="checkbox"> Move secrets out of config.py and crontab</label>
+              <label class="check-row"><input type="checkbox"> Rotate Telegram, Gemini, Twitter keys</label>
+              <label class="check-row"><input type="checkbox"> Install Cloudflare Tunnel</label>
+              <label class="check-row"><input type="checkbox"> Protect eais.muvazio.com with Access</label>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
