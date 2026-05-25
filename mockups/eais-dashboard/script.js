@@ -43,6 +43,12 @@ const plannerTodayCount = document.querySelector("#planner-today-count");
 const plannerTodayNote = document.querySelector("#planner-today-note");
 const runScheduleList = document.querySelector("#run-schedule-list");
 const projectBacklogList = document.querySelector("#project-backlog-list");
+const visionGrid = document.querySelector("#vision-grid");
+const visionUploadForm = document.querySelector("#vision-upload-form");
+const visionUploadTitle = document.querySelector("#vision-upload-title");
+const visionUploadFile = document.querySelector("#vision-upload-file");
+const visionUploadFileLabel = document.querySelector("#vision-upload-file-label");
+const visionUploadStatus = document.querySelector("#vision-upload-status");
 let toastTimer;
 let activePlaceIndex = 0;
 let eaisApiOnline = false;
@@ -576,6 +582,56 @@ function renderSystem(system) {
   });
 }
 
+function renderVisionUploads(items = []) {
+  if (!visionGrid) {
+    return;
+  }
+
+  visionGrid.querySelectorAll(".uploaded-vision").forEach((card) => card.remove());
+  const fragment = document.createDocumentFragment();
+
+  items.forEach((item) => {
+    const card = document.createElement("article");
+    card.className = "vision-card uploaded-vision";
+
+    const image = document.createElement("img");
+    image.src = item.imageUrl;
+    image.alt = item.title || "Uploaded vision board image";
+
+    const body = document.createElement("div");
+    body.className = "vision-card-body";
+
+    const type = document.createElement("span");
+    type.className = "vision-type";
+    type.textContent = "Uploaded Goal";
+
+    const heading = document.createElement("h3");
+    heading.textContent = item.title || "Vision Board Image";
+
+    const copy = document.createElement("p");
+    copy.textContent = item.description || "Uploaded vision board image.";
+
+    const meta = document.createElement("small");
+    meta.className = "uploaded-vision-meta";
+    meta.textContent = item.createdAt ? `Added ${formatDateShort(item.createdAt)}` : "Saved to EAIS";
+
+    body.append(type, heading, copy, meta);
+    card.append(image, body);
+    fragment.append(card);
+  });
+
+  visionGrid.prepend(fragment);
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => resolve(reader.result));
+    reader.addEventListener("error", () => reject(reader.error || new Error("Could not read image.")));
+    reader.readAsDataURL(file);
+  });
+}
+
 async function fetchJson(path) {
   const response = await fetch(path, { headers: { Accept: "application/json" } });
 
@@ -674,6 +730,19 @@ async function hydrateSystem() {
   }
 }
 
+async function hydrateVisionBoard() {
+  if (window.location.protocol === "file:") {
+    return;
+  }
+
+  try {
+    const data = await fetchJson("/api/vision-board");
+    renderVisionUploads(data.items);
+  } catch (error) {
+    console.warn(error);
+  }
+}
+
 function hydrateView(viewName) {
   if (viewName === "today") {
     hydrateEaisDashboard();
@@ -691,6 +760,9 @@ function hydrateView(viewName) {
   }
   if (viewName === "planner") {
     hydrateOps();
+  }
+  if (viewName === "vision") {
+    hydrateVisionBoard();
   }
 }
 
@@ -959,6 +1031,70 @@ nextPlaceButton?.addEventListener("click", () => {
   setPlace(activePlaceIndex + 1);
 });
 
+visionUploadFile?.addEventListener("change", () => {
+  const file = visionUploadFile.files?.[0];
+  if (visionUploadFileLabel) {
+    visionUploadFileLabel.textContent = file ? file.name : "Choose image";
+  }
+});
+
+visionUploadForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const file = visionUploadFile.files?.[0];
+  if (!file) {
+    if (visionUploadStatus) visionUploadStatus.textContent = "Choose an image first.";
+    showToast("Choose an image first");
+    return;
+  }
+
+  if (!file.type.startsWith("image/")) {
+    if (visionUploadStatus) visionUploadStatus.textContent = "That file is not an image.";
+    showToast("Upload an image file");
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    if (visionUploadStatus) visionUploadStatus.textContent = "Image is over the 5 MB limit.";
+    showToast("Image is over 5 MB");
+    return;
+  }
+
+  if (window.location.protocol === "file:") {
+    if (visionUploadStatus) visionUploadStatus.textContent = "Run the EAIS server to upload images.";
+    showToast("EAIS server required for uploads");
+    return;
+  }
+
+  try {
+    if (visionUploadStatus) visionUploadStatus.textContent = "Uploading image...";
+    const imageData = await readFileAsDataUrl(file);
+    const response = await fetch("/api/vision-board/images", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: visionUploadTitle.value || file.name.replace(/\.[^.]+$/, ""),
+        fileName: file.name,
+        imageData
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || `Upload failed with ${response.status}`);
+    }
+
+    visionUploadForm.reset();
+    if (visionUploadFileLabel) visionUploadFileLabel.textContent = "Choose image";
+    if (visionUploadStatus) visionUploadStatus.textContent = "Image saved to the Vision Board.";
+    await hydrateVisionBoard();
+    showToast("Vision Board image uploaded");
+  } catch (error) {
+    if (visionUploadStatus) visionUploadStatus.textContent = error.message;
+    showToast("Vision upload failed");
+  }
+});
+
 jarvisForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const message = jarvisInput.value.trim();
@@ -1003,5 +1139,6 @@ setDailyQuote();
 updateRevenueModel();
 setPlace(0);
 hydrateEaisDashboard();
+hydrateVisionBoard();
 setInterval(updateClock, 1000);
 setInterval(() => setPlace(activePlaceIndex + 1), 9000);

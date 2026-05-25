@@ -649,9 +649,19 @@
               <strong id="vision-income-focus">Build income engines</strong>
               <em id="vision-income-note">then convert targets into milestones</em>
             </div>
+            <form class="vision-upload" id="vision-upload-form">
+              <span>Add Image</span>
+              <input id="vision-upload-title" maxlength="80" placeholder="Goal title" aria-label="Vision image title">
+              <label class="file-picker">
+                <input id="vision-upload-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" aria-label="Choose vision board image">
+                <b id="vision-upload-file-label">Choose image</b>
+              </label>
+              <button class="command-button" type="submit">Upload</button>
+              <small id="vision-upload-status">PNG, JPG, WebP, or GIF up to 5 MB</small>
+            </form>
           </div>
 
-          <div class="vision-grid">
+          <div class="vision-grid" id="vision-grid">
             <article class="vision-card featured">
               <img src="./assets/lucid-gravity.jpg" alt="Lucid Gravity SUV">
               <div class="vision-card-body">

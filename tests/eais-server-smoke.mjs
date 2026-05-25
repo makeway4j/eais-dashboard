@@ -13,6 +13,7 @@ process.env.EMAIL_TO = "owner@example.com";
 process.env.SMTP_USER = "eais@example.com";
 process.env.SMTP_PASS = "test-password";
 process.env.JOPLIN_SAVE_MODE = "local";
+process.env.EAIS_VISION_BOARD_DIR = join(tempDir, "vision-board");
 
 let server;
 
@@ -73,6 +74,27 @@ try {
   const ops = await fetch(`${baseUrl}/api/ops`).then((response) => response.json());
   const integrations = await fetch(`${baseUrl}/api/integrations`).then((response) => response.json());
   const html = await fetch(baseUrl).then((response) => response.text());
+  const visionBefore = await fetch(`${baseUrl}/api/vision-board`).then((response) => response.json());
+  const uploadedVision = await fetch(`${baseUrl}/api/vision-board/images`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: "Smoke Test Vision Image",
+      fileName: "smoke.png",
+      imageData: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAFgwJ/lwC+WQAAAABJRU5ErkJggg=="
+    })
+  }).then((response) => response.json());
+  const corruptVision = await fetch(`${baseUrl}/api/vision-board/images`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: "Bad Vision Image",
+      fileName: "bad.png",
+      imageData: "data:image/png;base64,AAAA"
+    })
+  });
+  const visionAfter = await fetch(`${baseUrl}/api/vision-board`).then((response) => response.json());
+  const uploadedImage = await fetch(`${baseUrl}${uploadedVision.item?.imageUrl || ""}`);
 
   if (!health.ok || health.service !== "eais-dashboard") {
     throw new Error("Expected health endpoint to report EAIS dashboard service.");
@@ -120,6 +142,18 @@ try {
 
   if (!html.includes("EAIS Command Surface")) {
     throw new Error("Expected root route to serve the EAIS dashboard.");
+  }
+
+  if (visionBefore.items.length !== 0 || uploadedVision.item?.title !== "Smoke Test Vision Image" || visionAfter.items[0]?.id !== uploadedVision.item.id) {
+    throw new Error("Expected vision board image upload to persist metadata.");
+  }
+
+  if (corruptVision.status !== 400) {
+    throw new Error("Expected corrupt vision board image uploads to be rejected.");
+  }
+
+  if (!uploadedImage.ok || uploadedImage.headers.get("content-type") !== "image/png") {
+    throw new Error("Expected uploaded vision board image to be served as PNG.");
   }
 
   console.log("EAIS server smoke test passed");
