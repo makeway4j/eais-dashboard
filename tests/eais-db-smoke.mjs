@@ -2,7 +2,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import { ensureEaisDatabase, importLegacyDigest } from "../src/eais/db.mjs";
+import { ensureEaisDatabase, importLegacyDigest, upsertBriefing } from "../src/eais/db.mjs";
 
 const tempDir = await mkdtemp(join(tmpdir(), "eais-db-"));
 const eaisDbPath = join(tempDir, "eais.db");
@@ -50,11 +50,28 @@ try {
   process.env.EAIS_DB_PATH = eaisDbPath;
   const eaisDb = await ensureEaisDatabase(eaisDbPath);
   await importLegacyDigest(eaisDb, legacyDbPath);
+  upsertBriefing(eaisDb, {
+    briefingDate: "2026-05-24",
+    title: "AI Daily Briefing - May 24",
+    sentStatus: "sent",
+    sentAt: "2026-05-24T11:00:00.000Z",
+    itemCount: 24,
+    highPriorityCount: 8
+  });
+  upsertBriefing(eaisDb, {
+    briefingDate: "2026-05-24",
+    title: "AI Daily Briefing - May 24",
+    sentStatus: "dry-run",
+    sentAt: null,
+    itemCount: 24,
+    highPriorityCount: 8
+  });
   eaisDb.close();
 
   const db = new DatabaseSync(eaisDbPath);
   const imported = db.prepare("SELECT id, legacy_id, status FROM items WHERE legacy_id = ?").get("legacy-1");
   const runs = db.prepare("SELECT COUNT(*) AS count FROM run_history WHERE job_name = 'import-digest' AND status = 'success'").get();
+  const briefing = db.prepare("SELECT sent_status AS sentStatus, sent_at AS sentAt FROM briefings WHERE briefing_date = ?").get("2026-05-24");
   db.close();
 
   if (!imported || imported.id !== "digest:legacy-1" || imported.status !== "signal") {
@@ -63,6 +80,10 @@ try {
 
   if (runs.count !== 1) {
     throw new Error("Expected import-digest run history to be recorded.");
+  }
+
+  if (briefing.sentStatus !== "sent" || briefing.sentAt !== "2026-05-24T11:00:00.000Z") {
+    throw new Error("Expected dry-run briefing upsert to preserve an existing sent status.");
   }
 
   console.log("EAIS database smoke test passed");

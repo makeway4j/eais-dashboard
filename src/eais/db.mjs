@@ -245,8 +245,14 @@ export function upsertBriefing(db, briefing) {
     ON CONFLICT(briefing_date) DO UPDATE SET
       title = excluded.title,
       html_path = excluded.html_path,
-      sent_status = excluded.sent_status,
-      sent_at = excluded.sent_at,
+      sent_status = CASE
+        WHEN briefings.sent_status = 'sent' AND excluded.sent_status != 'sent' THEN briefings.sent_status
+        ELSE excluded.sent_status
+      END,
+      sent_at = CASE
+        WHEN briefings.sent_at IS NOT NULL AND excluded.sent_at IS NULL THEN briefings.sent_at
+        ELSE excluded.sent_at
+      END,
       joplin_note_id = excluded.joplin_note_id,
       item_count = excluded.item_count,
       high_priority_count = excluded.high_priority_count,
