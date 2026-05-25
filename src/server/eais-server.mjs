@@ -693,7 +693,7 @@ async function checkHtmlStatusProvider(name, url, { operationalPattern, issuePat
 
   try {
     const { text, latencyMs } = await fetchTextWithTimeout(url);
-    const compactText = text.replace(/\s+/g, " ").slice(0, 1200);
+    const compactText = text.replace(/\s+/g, " ").slice(0, 5000);
     const hasIssue = issuePattern.test(compactText);
     const status = hasIssue ? "watch" : operationalPattern.test(compactText) ? "operational" : "unknown";
 
@@ -867,7 +867,7 @@ async function getAiHealth(options = {}) {
     }),
     checkHtmlStatusProvider("Cohere", "https://status.cohere.com/", {
       operationalPattern: /fully operational|all systems operational|not aware of any issues/i,
-      issuePattern: /degraded|partial outage|major outage|investigating|incident/i
+      issuePattern: /active incident|degraded|partial outage|major outage|investigating|issue affecting|service disruption/i
     }),
     Promise.resolve(skippedProvider("xAI Grok", "vendor", "https://status.x.ai", "No stable public JSON status API is configured yet.")),
     Promise.resolve(skippedProvider("Kimi / Moonshot AI", "vendor", "https://platform.moonshot.ai", "No stable public JSON status API is configured yet.")),
