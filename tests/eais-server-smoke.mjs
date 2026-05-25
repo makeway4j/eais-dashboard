@@ -79,6 +79,11 @@ try {
   const ops = await fetch(`${baseUrl}/api/ops`).then((response) => response.json());
   const integrations = await fetch(`${baseUrl}/api/integrations`).then((response) => response.json());
   const html = await fetch(baseUrl).then((response) => response.text());
+  const jarvisUnconfigured = await fetch(`${baseUrl}/api/jarvis/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: "Are you connected?" })
+  });
   const visionBefore = await fetch(`${baseUrl}/api/vision-board`).then((response) => response.json());
   const uploadedVision = await fetch(`${baseUrl}/api/vision-board/images`, {
     method: "POST",
@@ -147,6 +152,10 @@ try {
 
   if (!html.includes("EAIS Command Surface")) {
     throw new Error("Expected root route to serve the EAIS dashboard.");
+  }
+
+  if (jarvisUnconfigured.status !== 503) {
+    throw new Error("Expected Jarvis chat endpoint to require bridge configuration.");
   }
 
   if (visionBefore.items.length !== 0 || uploadedVision.item?.title !== "Smoke Test Vision Image" || visionAfter.items[0]?.id !== uploadedVision.item.id) {

@@ -51,6 +51,7 @@ const imageExtensions = {
 };
 const maxVisionImageBytes = 5 * 1024 * 1024;
 const maxJsonBodyBytes = 8 * 1024 * 1024;
+const jarvisTimeoutMs = Number(process.env.EAIS_JARVIS_TIMEOUT_MS || 45000);
 
 function sendJson(response, status, payload) {
   const body = JSON.stringify(payload, null, 2);
@@ -243,6 +244,72 @@ function decodeVisionImage(imageData) {
   };
 }
 
+function normalizeJarvisMessage(value) {
+  return String(value || "").trim().slice(0, 2000);
+}
+
+function getJarvisPrompt(message) {
+  return [
+    "You are Jarvis inside James's EAIS dashboard.",
+    "Be direct, useful, and concise.",
+    "Focus on AI intelligence, home lab operations, daily briefings, revenue projects, schedules, Joplin, and next actions.",
+    "Do not claim you performed external actions unless the user explicitly asks and the tool is available.",
+    "",
+    `James says: ${message}`,
+    "",
+    "Reply in 2-5 short sentences."
+  ].join("\n");
+}
+
+async function getJarvisChatReply(message) {
+  const baseUrl = (process.env.EAIS_JARVIS_BASE || process.env.EAIS_OLLAMA_BASE || "").replace(/\/+$/, "");
+  const model = process.env.EAIS_JARVIS_MODEL || "llama3.1:8b";
+
+  if (!baseUrl) {
+    const error = new Error("Jarvis bridge is not configured.");
+    error.status = 503;
+    throw error;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), jarvisTimeoutMs);
+
+  try {
+    const response = await fetch(`${baseUrl}/api/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model,
+        prompt: getJarvisPrompt(message),
+        stream: false,
+        options: {
+          num_predict: 180,
+          temperature: 0.4
+        }
+      })
+    });
+    const body = await response.text();
+
+    if (!response.ok) {
+      throw new Error(`Kora returned ${response.status}: ${body.slice(0, 160)}`);
+    }
+
+    const data = JSON.parse(body);
+    return {
+      model: data.model || model,
+      reply: String(data.response || "").trim() || "Kora returned an empty reply."
+    };
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("Kora timed out before Jarvis could answer.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function serveVisionImage(response, pathname) {
   const fileName = decodeURIComponent(pathname.replace(/^\/api\/vision-board\/images\//, ""));
   if (!/^[a-f0-9-]+\.(gif|jpg|png|webp)$/i.test(fileName)) {
@@ -289,6 +356,33 @@ async function serveStatic(request, response, pathname) {
 }
 
 async function handleApi(request, response, url, db) {
+  if (url.pathname === "/api/jarvis/chat") {
+    if (request.method !== "POST") {
+      sendError(response, 405, "Method not allowed.");
+      return true;
+    }
+
+    try {
+      const payload = await readJsonBody(request);
+      const message = normalizeJarvisMessage(payload.message);
+      if (!message) {
+        sendError(response, 400, "Message is required.");
+        return true;
+      }
+
+      const result = await getJarvisChatReply(message);
+      sendJson(response, 200, {
+        ok: true,
+        provider: "kora-ollama",
+        model: result.model,
+        reply: result.reply
+      });
+    } catch (error) {
+      sendError(response, error.status || 502, error.message || "Jarvis bridge failed.");
+    }
+    return true;
+  }
+
   if (url.pathname === "/api/vision-board") {
     if (request.method !== "GET") {
       sendError(response, 405, "Method not allowed.");

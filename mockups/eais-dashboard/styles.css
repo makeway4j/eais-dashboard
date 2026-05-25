@@ -1937,6 +1937,15 @@ h3 {
   color: var(--ink);
 }
 
+.jarvis-source {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .jarvis-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
