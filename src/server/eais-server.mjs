@@ -559,6 +559,38 @@ async function fetchJsonWithTimeout(url, options = {}) {
   }
 }
 
+async function fetchTextWithTimeout(url, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), aiHealthTimeoutMs);
+  const startedAt = Date.now();
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        Accept: "text/html,application/xhtml+xml,application/json",
+        ...(options.headers || {})
+      }
+    });
+    const text = await response.text();
+    const latencyMs = Date.now() - startedAt;
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${text.slice(0, 120)}`);
+    }
+
+    return { text, latencyMs };
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("Request timed out.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function skippedProvider(name, type, url, detail = "Live status check disabled in this environment.") {
   return {
     name,
@@ -594,6 +626,85 @@ async function checkStatusPageProvider(name, url) {
       detail: impacted.length ? impacted.join(", ") : data.status?.description || "No active incidents reported.",
       lastUpdated: data.page?.updated_at || null,
       url: data.page?.url || url.replace("/api/v2/summary.json", ""),
+      latencyMs
+    };
+  } catch (error) {
+    return {
+      name,
+      type: "vendor",
+      status: "unknown",
+      statusText: "Status check failed",
+      detail: error.message,
+      lastUpdated: null,
+      url,
+      latencyMs: null
+    };
+  }
+}
+
+function instatusProviderStatus(pageStatus, activeIncidents = []) {
+  const hasMajorIncident = activeIncidents.some((incident) => /major|outage|critical/i.test(incident.impact || incident.status || incident.name || ""));
+  if (hasMajorIncident) {
+    return "down";
+  }
+  if (activeIncidents.length || pageStatus !== "UP") {
+    return "watch";
+  }
+  return "operational";
+}
+
+async function checkInstatusProvider(name, url) {
+  if (process.env.EAIS_AI_HEALTH_SKIP_EXTERNAL === "1") {
+    return skippedProvider(name, "vendor", url);
+  }
+
+  try {
+    const { data, latencyMs } = await fetchJsonWithTimeout(url);
+    const activeIncidents = data.activeIncidents || [];
+    const status = instatusProviderStatus(data.page?.status, activeIncidents);
+    return {
+      name,
+      type: "vendor",
+      status,
+      statusText: providerStatusText(status),
+      detail: activeIncidents.length ? activeIncidents.slice(0, 3).map((incident) => incident.name).join(", ") : "No active incidents reported.",
+      lastUpdated: activeIncidents[0]?.updatedAt || null,
+      url: data.page?.url || url,
+      latencyMs
+    };
+  } catch (error) {
+    return {
+      name,
+      type: "vendor",
+      status: "unknown",
+      statusText: "Status check failed",
+      detail: error.message,
+      lastUpdated: null,
+      url,
+      latencyMs: null
+    };
+  }
+}
+
+async function checkHtmlStatusProvider(name, url, { operationalPattern, issuePattern }) {
+  if (process.env.EAIS_AI_HEALTH_SKIP_EXTERNAL === "1") {
+    return skippedProvider(name, "vendor", url);
+  }
+
+  try {
+    const { text, latencyMs } = await fetchTextWithTimeout(url);
+    const compactText = text.replace(/\s+/g, " ").slice(0, 1200);
+    const hasIssue = issuePattern.test(compactText);
+    const status = hasIssue ? "watch" : operationalPattern.test(compactText) ? "operational" : "unknown";
+
+    return {
+      name,
+      type: "vendor",
+      status,
+      statusText: providerStatusText(status),
+      detail: hasIssue ? "Official status page is reporting an issue or degraded service." : status === "operational" ? "Official status page reports systems operational." : "Official status page responded, but EAIS could not confidently parse the status.",
+      lastUpdated: null,
+      url,
       latencyMs
     };
   } catch (error) {
@@ -749,8 +860,19 @@ async function getAiHealth(options = {}) {
     checkStatusPageProvider("OpenAI / ChatGPT", "https://status.openai.com/api/v2/summary.json"),
     checkStatusPageProvider("Anthropic / Claude", "https://status.anthropic.com/api/v2/summary.json"),
     checkGoogleAiHealth(),
+    checkInstatusProvider("Perplexity", "https://status.perplexity.com/v3/summary.json"),
+    checkHtmlStatusProvider("Mistral AI", "https://status.mistral.ai/", {
+      operationalPattern: /all systems operational|all services are online|0 services experiencing issues/i,
+      issuePattern: /service experiencing issues|degraded|partial outage|major outage|investigating/i
+    }),
+    checkHtmlStatusProvider("Cohere", "https://status.cohere.com/", {
+      operationalPattern: /fully operational|all systems operational|not aware of any issues/i,
+      issuePattern: /degraded|partial outage|major outage|investigating|incident/i
+    }),
     Promise.resolve(skippedProvider("xAI Grok", "vendor", "https://status.x.ai", "No stable public JSON status API is configured yet.")),
     Promise.resolve(skippedProvider("Kimi / Moonshot AI", "vendor", "https://platform.moonshot.ai", "No stable public JSON status API is configured yet.")),
+    Promise.resolve(skippedProvider("Groq", "vendor", "https://status.groq.com", "No stable public JSON status API is configured yet.")),
+    Promise.resolve(skippedProvider("Meta Llama / Meta AI", "vendor", "https://metastatus.com/", "No dedicated public Meta AI/Llama status API is configured yet.")),
     checkKoraBridgeHealth(),
     checkKoraOllamaHealth()
   ]);
