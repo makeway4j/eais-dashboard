@@ -37,6 +37,7 @@ const plannerScheduledNote = document.querySelector("#planner-scheduled-note");
 const plannerTodayCount = document.querySelector("#planner-today-count");
 const plannerTodayNote = document.querySelector("#planner-today-note");
 const runScheduleList = document.querySelector("#run-schedule-list");
+const projectBacklogList = document.querySelector("#project-backlog-list");
 let toastTimer;
 let activePlaceIndex = 0;
 let eaisApiOnline = false;
@@ -214,6 +215,16 @@ function statusClass(status) {
     return "warn";
   }
   return "neutral";
+}
+
+function priorityClass(priority) {
+  if (priority === "high") {
+    return "high-priority";
+  }
+  if (priority === "medium") {
+    return "medium-priority";
+  }
+  return "low-priority";
 }
 
 function healthForSource(source) {
@@ -433,6 +444,28 @@ function renderOps(ops) {
       body.append(heading, copy);
       row.append(time, body, pill);
       runScheduleList.append(row);
+    });
+  }
+
+  if (projectBacklogList && ops.backlog?.length) {
+    projectBacklogList.replaceChildren();
+
+    ops.backlog.slice(0, 6).forEach((item) => {
+      const article = document.createElement("article");
+      const dot = document.createElement("span");
+      const body = document.createElement("div");
+      const heading = document.createElement("h3");
+      const copy = document.createElement("p");
+      const priority = document.createElement("em");
+
+      dot.className = `priority-dot ${priorityClass(item.priority)}`;
+      heading.textContent = item.task;
+      copy.textContent = item.notes || `${item.project || "EAIS"} backlog item is waiting for scope.`;
+      priority.textContent = item.priority || "open";
+
+      body.append(heading, copy);
+      article.append(dot, body, priority);
+      projectBacklogList.append(article);
     });
   }
 }

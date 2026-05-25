@@ -11,6 +11,7 @@ import {
   getEaisHistory,
   getEaisSummary,
   getEaisTopicMix,
+  listBacklogItems,
   listEaisItems,
   listRecentBriefings,
   listRunHistory,
@@ -188,7 +189,16 @@ async function handleApi(request, response, url, db) {
       timer: await getTimerStatus(),
       integrations: getIntegrationStatus(),
       briefings: listRecentBriefings(db, { limit: 5 }),
-      runHistory: listRunHistory(db, { limit: 8 })
+      runHistory: listRunHistory(db, { limit: 8 }),
+      backlog: listBacklogItems(db, { limit: 8 })
+    });
+    return true;
+  }
+
+  if (url.pathname === "/api/backlog") {
+    sendJson(response, 200, {
+      ok: true,
+      backlog: listBacklogItems(db)
     });
     return true;
   }

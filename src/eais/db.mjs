@@ -201,6 +201,31 @@ export function listRunHistory(db, { limit = 10 } = {}) {
   });
 }
 
+export function listBacklogItems(db, { limit = 10 } = {}) {
+  const normalizedLimit = Math.max(1, Math.min(Number(limit) || 10, 50));
+  return db.prepare(`
+    SELECT
+      id,
+      task,
+      project,
+      priority,
+      status,
+      notes,
+      created_at AS createdAt,
+      updated_at AS updatedAt
+    FROM backlog_items
+    ORDER BY
+      CASE priority
+        WHEN 'high' THEN 1
+        WHEN 'medium' THEN 2
+        WHEN 'low' THEN 3
+        ELSE 4
+      END,
+      id DESC
+    LIMIT ${normalizedLimit}
+  `).all();
+}
+
 export function recordRunStart(db, jobName, details = {}) {
   const result = db.prepare(`
     INSERT INTO run_history (job_name, status, details)

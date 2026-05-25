@@ -50,6 +50,10 @@ try {
     INSERT INTO run_history (job_name, status, finished_at, details)
     VALUES (?, ?, CURRENT_TIMESTAMP, ?)
   `).run("daily-brief", "success", JSON.stringify({ outputPath: "/tmp/daily-update.html" }));
+  db.prepare(`
+    INSERT INTO backlog_items (task, project, priority, status, notes)
+    VALUES (?, ?, ?, ?, ?)
+  `).run("Improve email topic boundaries", "EAIS", "high", "open", "Make section breaks clearer in the daily briefing.");
   db.close();
 
   const { createEaisServer } = await import("../src/server/eais-server.mjs");
@@ -100,6 +104,10 @@ try {
 
   if (ops.briefings[0]?.joplinNoteId?.startsWith("local:") !== true || ops.runHistory[0]?.jobName !== "daily-brief") {
     throw new Error("Expected ops endpoint to return briefing archive and run history.");
+  }
+
+  if (ops.backlog[0]?.task !== "Improve email topic boundaries") {
+    throw new Error("Expected ops endpoint to return backlog items.");
   }
 
   if (integrations.integrations.email.status !== "configured" || integrations.integrations.joplin.status !== "ready") {
