@@ -200,8 +200,9 @@ Remaining:
 - A user-provided REST token was tested against the locally reachable Windows Joplin Data API on `127.0.0.1:41184` and returned `HTTP 403 Invalid token`, so do not promote it to CT 301 until it is confirmed for the target Data API service.
 - Joplin Server is a different sync API from the Desktop/Web Clipper Data API. For CT 111, use `JOPLIN_SERVER_TOKEN` or `JOPLIN_SERVER_EMAIL`/`JOPLIN_SERVER_PASSWORD`, then validate with the redacted `npm run eais:probe-joplin` server auth checks before enabling `JOPLIN_SAVE_MODE=server`.
 - Existing JARVIS notebook id noted by the user: `fd981`.
-- Recommended: create a separate EAIS notebook in Joplin and use its notebook id for `JOPLIN_NOTEBOOK_ID`.
-- Needed before switching to Joplin Server archive mode: validated server auth, confirmed sync-item write behavior, and the EAIS notebook id.
+- Separate EAIS notebook created in Joplin Server. Production `JOPLIN_NOTEBOOK_ID` is configured in `/opt/eais/.env`.
+- CT 301 production is configured with `JOPLIN_SAVE_MODE=server`, `JOPLIN_SERVER_BASE=https://joplin.muvazio.com`, server login credentials in `.env`, and the EAIS notebook id.
+- Verified from CT 301 with a sample dry-run using a temporary DB: email skipped, archive status `saved-server`, returned Joplin note id `30bd04f19c04725dd2f5360af3564d53`.
 
 ## Security Blockers Before External Access
 
