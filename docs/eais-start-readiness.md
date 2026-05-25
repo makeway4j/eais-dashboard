@@ -195,7 +195,7 @@ Remaining:
 - Intended Joplin API base from CT 301: `http://192.168.5.153:41184`.
 - CT 301 is configured with that API base, but keeps `JOPLIN_SAVE_MODE=local` until the token and notebook are ready.
 - Current CT 301 reachability check to `192.168.5.153:41184` returned connection refused, so CT 111 may not be listening on that port yet.
-- CT 301 can reach CT 111 on port `22300`, which appears to be Joplin Server/sync rather than the Joplin Data API used by `/notes?token=...`.
+- CT 301 can reach CT 111 on port `22300`, but direct LAN requests are rejected by Joplin Server origin checks. Use the configured public base `https://joplin.muvazio.com` for Joplin Server API calls from EAIS.
 - Use `npm run eais:probe-joplin` on CT 301 to check both the Data API base and Joplin Server base without printing tokens.
 - A user-provided REST token was tested against the locally reachable Windows Joplin Data API on `127.0.0.1:41184` and returned `HTTP 403 Invalid token`, so do not promote it to CT 301 until it is confirmed for the target Data API service.
 - Joplin Server is a different sync API from the Desktop/Web Clipper Data API. For CT 111, use `JOPLIN_SERVER_TOKEN` or `JOPLIN_SERVER_EMAIL`/`JOPLIN_SERVER_PASSWORD`, then validate with the redacted `npm run eais:probe-joplin` server auth checks before enabling `JOPLIN_SAVE_MODE=server`.
