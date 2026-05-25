@@ -176,16 +176,52 @@ try {
   await new Promise((resolve) => protectedServer.listen(0, "127.0.0.1", resolve));
   const protectedBaseUrl = `http://127.0.0.1:${protectedServer.address().port}`;
   const denied = await fetch(`${protectedBaseUrl}/api/health`);
+  const redirected = await fetch(`${protectedBaseUrl}/`, { redirect: "manual" });
+  const basicPageRedirect = await fetch(`${protectedBaseUrl}/`, {
+    redirect: "manual",
+    headers: { Authorization: basicAuth("James", "test-secret") }
+  });
+  const loginPage = await fetch(`${protectedBaseUrl}/login`).then((response) => response.text());
+  const badLogin = await fetch(`${protectedBaseUrl}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: "James", password: "wrong" })
+  });
+  const login = await fetch(`${protectedBaseUrl}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: "James", password: "test-secret" })
+  });
+  const sessionCookie = login.headers.get("set-cookie")?.split(";")[0] || "";
+  const sessionAllowed = await fetch(`${protectedBaseUrl}/api/health`, {
+    headers: { Cookie: sessionCookie }
+  });
   const allowed = await fetch(`${protectedBaseUrl}/api/health`, {
     headers: { Authorization: basicAuth("James", "test-secret") }
   });
 
-  if (denied.status !== 401 || denied.headers.get("www-authenticate")?.includes("Basic realm=\"EAIS\"") !== true) {
-    throw new Error("Expected EAIS auth to require Basic credentials when configured.");
+  if (denied.status !== 401) {
+    throw new Error("Expected EAIS API auth to require credentials when configured.");
+  }
+
+  if (redirected.status !== 302 || redirected.headers.get("location")?.startsWith("/login?next=") !== true) {
+    throw new Error("Expected protected dashboard pages to redirect to login.");
+  }
+
+  if (basicPageRedirect.status !== 302) {
+    throw new Error("Expected dashboard pages to require form session even when a cached Basic Auth header is present.");
+  }
+
+  if (!loginPage.includes("Enter EAIS") || !loginPage.includes("Executive AI Intelligence System")) {
+    throw new Error("Expected login page to render EAIS branded access form.");
+  }
+
+  if (badLogin.status !== 401 || !sessionCookie || !sessionAllowed.ok) {
+    throw new Error("Expected EAIS form login to reject bad credentials and accept valid session credentials.");
   }
 
   if (!allowed.ok) {
-    throw new Error("Expected EAIS auth to accept configured Basic credentials.");
+    throw new Error("Expected EAIS auth to keep accepting configured Basic credentials for API clients.");
   }
 
   console.log("EAIS server smoke test passed");

@@ -2,7 +2,7 @@
 import { createServer } from "node:http";
 import { execFile } from "node:child_process";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
-import { randomUUID } from "node:crypto";
+import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { extname, join, normalize, resolve } from "node:path";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
@@ -52,6 +52,8 @@ const imageExtensions = {
 const maxVisionImageBytes = 5 * 1024 * 1024;
 const maxJsonBodyBytes = 8 * 1024 * 1024;
 const koraTimeoutMs = Number(process.env.EAIS_KORA_TIMEOUT_MS || process.env.EAIS_JARVIS_TIMEOUT_MS || 45000);
+const sessionCookieName = "eais_session";
+const sessionMaxAgeSeconds = Number(process.env.EAIS_SESSION_MAX_AGE_SECONDS || 60 * 60 * 12);
 
 function sendJson(response, status, payload) {
   const body = JSON.stringify(payload, null, 2);
@@ -68,11 +70,18 @@ function sendError(response, status, message) {
 
 function sendAuthRequired(response) {
   response.writeHead(401, {
-    "Content-Type": "text/plain; charset=utf-8",
-    "Cache-Control": "no-store",
-    "WWW-Authenticate": "Basic realm=\"EAIS\", charset=\"UTF-8\""
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store"
   });
-  response.end("Authentication required.");
+  response.end(JSON.stringify({ ok: false, error: "Authentication required." }, null, 2));
+}
+
+function sendRedirect(response, location) {
+  response.writeHead(302, {
+    Location: location,
+    "Cache-Control": "no-store"
+  });
+  response.end();
 }
 
 function sendBinary(response, status, body, contentType) {
@@ -83,12 +92,92 @@ function sendBinary(response, status, body, contentType) {
   response.end(body);
 }
 
-function isAuthorized(request) {
-  const authUser = process.env.EAIS_AUTH_USER || "";
-  const authPass = process.env.EAIS_AUTH_PASS || "";
-  const authEnabled = Boolean(authUser && authPass);
+function getAuthConfig() {
+  return {
+    user: process.env.EAIS_AUTH_USER || "",
+    pass: process.env.EAIS_AUTH_PASS || "",
+    secret: process.env.EAIS_AUTH_SECRET || process.env.EAIS_AUTH_PASS || "local-eais-session-secret"
+  };
+}
 
-  if (!authEnabled) {
+function isAuthEnabled() {
+  const { user, pass } = getAuthConfig();
+  return Boolean(user && pass);
+}
+
+function safeEqual(left, right) {
+  const leftBuffer = Buffer.from(String(left));
+  const rightBuffer = Buffer.from(String(right));
+  if (leftBuffer.length !== rightBuffer.length) {
+    return false;
+  }
+
+  return timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+function parseCookies(request) {
+  return Object.fromEntries(String(request.headers.cookie || "")
+    .split(";")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      const separator = part.indexOf("=");
+      if (separator === -1) {
+        return [part, ""];
+      }
+      return [part.slice(0, separator), decodeURIComponent(part.slice(separator + 1))];
+    }));
+}
+
+function signSession(payload) {
+  const { secret } = getAuthConfig();
+  return createHmac("sha256", secret).update(payload).digest("base64url");
+}
+
+function createSessionCookie(username) {
+  const issuedAt = Math.floor(Date.now() / 1000);
+  const expiresAt = issuedAt + sessionMaxAgeSeconds;
+  const nonce = randomBytes(16).toString("hex");
+  const payload = Buffer.from(JSON.stringify({ username, issuedAt, expiresAt, nonce })).toString("base64url");
+  const signature = signSession(payload);
+
+  return [
+    `${sessionCookieName}=${payload}.${signature}`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    `Max-Age=${sessionMaxAgeSeconds}`
+  ].join("; ");
+}
+
+function clearSessionCookie() {
+  return `${sessionCookieName}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
+}
+
+function hasValidSession(request) {
+  const cookie = parseCookies(request)[sessionCookieName];
+  if (!cookie || !cookie.includes(".")) {
+    return false;
+  }
+
+  const [payload, signature] = cookie.split(".");
+  if (!payload || !signature || !safeEqual(signature, signSession(payload))) {
+    return false;
+  }
+
+  try {
+    const session = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    const now = Math.floor(Date.now() / 1000);
+    const { user } = getAuthConfig();
+    return session.username === user && Number(session.expiresAt) > now;
+  } catch {
+    return false;
+  }
+}
+
+function hasValidBasicAuth(request) {
+  const { user, pass } = getAuthConfig();
+  if (!user || !pass) {
     return true;
   }
 
@@ -105,10 +194,25 @@ function isAuthorized(request) {
       return false;
     }
 
-    return decoded.slice(0, separator) === authUser && decoded.slice(separator + 1) === authPass;
+    return safeEqual(decoded.slice(0, separator), user) && safeEqual(decoded.slice(separator + 1), pass);
   } catch {
     return false;
   }
+}
+
+function isAuthorized(request, options = {}) {
+  const allowBasic = options.allowBasic !== false;
+
+  if (!isAuthEnabled()) {
+    return true;
+  }
+
+  return hasValidSession(request) || (allowBasic && hasValidBasicAuth(request));
+}
+
+function validateLogin(username, password) {
+  const { user, pass } = getAuthConfig();
+  return Boolean(user && pass && safeEqual(username, user) && safeEqual(password, pass));
 }
 
 function safeStaticPath(pathname) {
@@ -410,7 +514,58 @@ async function serveStatic(request, response, pathname) {
   }
 }
 
+async function serveLogin(response) {
+  const file = await readFile(join(dashboardRoot, "login.html"));
+  response.writeHead(200, {
+    "Content-Type": "text/html; charset=utf-8",
+    "Cache-Control": "no-store"
+  });
+  response.end(file);
+}
+
 async function handleApi(request, response, url, db) {
+  if (url.pathname === "/api/auth/login") {
+    if (request.method !== "POST") {
+      sendError(response, 405, "Method not allowed.");
+      return true;
+    }
+
+    const payload = await readJsonBody(request);
+    const username = String(payload.username || "").trim();
+    const password = String(payload.password || "");
+
+    if (!validateLogin(username, password)) {
+      sendError(response, 401, "Invalid username or password.");
+      return true;
+    }
+
+    response.writeHead(200, {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+      "Set-Cookie": createSessionCookie(username)
+    });
+    response.end(JSON.stringify({ ok: true }, null, 2));
+    return true;
+  }
+
+  if (url.pathname === "/api/auth/logout") {
+    response.writeHead(200, {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+      "Set-Cookie": clearSessionCookie()
+    });
+    response.end(JSON.stringify({ ok: true }, null, 2));
+    return true;
+  }
+
+  if (url.pathname === "/api/auth/session") {
+    sendJson(response, 200, {
+      ok: true,
+      authenticated: isAuthorized(request)
+    });
+    return true;
+  }
+
   if (url.pathname === "/api/kora/chat" || url.pathname === "/api/jarvis/chat") {
     if (request.method !== "POST") {
       sendError(response, 405, "Method not allowed.");
@@ -600,8 +755,26 @@ export async function createEaisServer() {
     try {
       const url = new URL(request.url, `http://${request.headers.host || `${host}:${port}`}`);
 
-      if (!isAuthorized(request)) {
-        sendAuthRequired(response);
+      if (url.pathname === "/login" || url.pathname === "/login.html") {
+        if (isAuthorized(request, { allowBasic: false })) {
+          sendRedirect(response, "/");
+          return;
+        }
+        await serveLogin(response);
+        return;
+      }
+
+      if (url.pathname === "/api/auth/login") {
+        await handleApi(request, response, url, db);
+        return;
+      }
+
+      if (!isAuthorized(request, { allowBasic: url.pathname.startsWith("/api/") })) {
+        if (url.pathname.startsWith("/api/")) {
+          sendAuthRequired(response);
+        } else {
+          sendRedirect(response, `/login?next=${encodeURIComponent(url.pathname + url.search)}`);
+        }
         return;
       }
 
