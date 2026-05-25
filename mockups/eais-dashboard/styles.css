@@ -184,6 +184,12 @@ button:disabled {
   padding: 24px 24px 260px;
 }
 
+@media (min-width: 1180px) {
+  .workspace {
+    padding-right: 378px;
+  }
+}
+
 .topbar {
   display: flex;
   align-items: center;
@@ -760,6 +766,10 @@ h3 {
   line-height: 1.7;
 }
 
+.brief-preview li::marker {
+  color: var(--accent);
+}
+
 .full-button {
   width: 100%;
   margin-top: 12px;
@@ -1269,6 +1279,24 @@ h3 {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
+}
+
+.archive-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.archive-meta span {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(var(--accent-rgb), 0.08);
+  color: var(--ink);
+  padding: 7px 9px;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .text-vision {

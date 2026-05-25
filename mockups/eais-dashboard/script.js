@@ -29,7 +29,12 @@ const briefHighPriority = document.querySelector("#brief-high-priority");
 const briefSourceCount = document.querySelector("#brief-source-count");
 const briefEmailStatus = document.querySelector("#brief-email-status");
 const briefArchiveStatus = document.querySelector("#brief-archive-status");
+const briefArchiveTarget = document.querySelector("#brief-archive-target");
+const briefArchiveNote = document.querySelector("#brief-archive-note");
 const joplinArchiveCopy = document.querySelector("#joplin-archive-copy");
+const joplinArchiveMode = document.querySelector("#joplin-archive-mode");
+const joplinArchiveTarget = document.querySelector("#joplin-archive-target");
+const joplinLatestNote = document.querySelector("#joplin-latest-note");
 const plannerNextRunTitle = document.querySelector("#planner-next-run-title");
 const plannerNextRunTime = document.querySelector("#planner-next-run-time");
 const plannerScheduledCount = document.querySelector("#planner-scheduled-count");
@@ -208,13 +213,68 @@ function formatSystemdTime(value) {
 }
 
 function statusClass(status) {
-  if (["success", "sent", "active", "running", "saved-local", "saved-api", "ready"].includes(status)) {
+  if (["success", "sent", "active", "running", "saved-local", "saved-api", "saved-server", "ready"].includes(status)) {
     return "good";
   }
   if (["dry-run", "watch", "running", "configured"].includes(status)) {
     return "warn";
   }
   return "neutral";
+}
+
+function archiveLabel(noteId) {
+  if (!noteId) {
+    return "Archive pending";
+  }
+
+  if (noteId.startsWith("local:")) {
+    return "Local CT 301 archive";
+  }
+
+  return `Joplin note ${noteId.slice(0, 8)}`;
+}
+
+function archiveTargetLabel(joplin) {
+  if (!joplin) {
+    return "Target unknown";
+  }
+
+  if (joplin.saveMode === "server") {
+    return `${joplin.notebookTitle || "EAIS"} notebook`;
+  }
+
+  if (joplin.saveMode === "local") {
+    return "CT 301 markdown archive";
+  }
+
+  if (joplin.saveMode === "api") {
+    return "Desktop Data API";
+  }
+
+  return "Archive disabled";
+}
+
+function archiveStatusCopy({ latestBriefing, latestRun, joplin }) {
+  const mode = joplin?.saveMode || "unknown";
+  const lastArchiveStatus = latestRun?.details?.archiveStatus;
+
+  if (mode === "server" && latestBriefing?.joplinNoteId && !latestBriefing.joplinNoteId.startsWith("local:")) {
+    return `Latest briefing saved to Joplin Server for ${latestBriefing.briefingDate}. Note id ${latestBriefing.joplinNoteId.slice(0, 12)}... is in the ${joplin.notebookTitle || "EAIS"} notebook.`;
+  }
+
+  if (mode === "server") {
+    return `Joplin Server is ready for the next daily run. Current recorded briefing still points to ${archiveLabel(latestBriefing?.joplinNoteId).toLowerCase()}, and the next 6 AM run should write into ${joplin.notebookTitle || "EAIS"}.`;
+  }
+
+  if (latestBriefing?.joplinNoteId) {
+    return `Latest archive is saved for ${latestBriefing.briefingDate}. ${archiveLabel(latestBriefing.joplinNoteId)}.`;
+  }
+
+  if (lastArchiveStatus) {
+    return `Last archive job reported ${lastArchiveStatus}.`;
+  }
+
+  return "Latest briefing is in EAIS history, but no Joplin archive id was recorded yet.";
 }
 
 function priorityClass(priority) {
@@ -390,11 +450,22 @@ function renderOps(ops) {
     if (briefSourceCount) briefSourceCount.textContent = `${latestBriefing.itemCount || 0} total briefing items`;
     if (briefEmailStatus) briefEmailStatus.textContent = email ? `Email: ${email.status} (${email.sendMode})` : `Email status: ${latestBriefing.sentStatus}`;
     if (briefArchiveStatus) briefArchiveStatus.textContent = joplin ? `Joplin: ${joplin.status} (${joplin.saveMode})` : latestBriefing.joplinNoteId ? "Joplin archive saved" : "Joplin archive pending";
-    if (joplinArchiveCopy) {
-      joplinArchiveCopy.textContent = latestBriefing.joplinNoteId
-        ? `Latest archive is saved for ${latestBriefing.briefingDate}. ${latestBriefing.joplinNoteId.startsWith("local:") ? "It is currently a local markdown archive on CT 301." : "It is linked to Joplin."}`
-        : "Latest briefing is in EAIS history, but no Joplin archive id was recorded yet.";
-    }
+    if (briefArchiveTarget) briefArchiveTarget.textContent = `Target: ${archiveTargetLabel(joplin)}`;
+    if (briefArchiveNote) briefArchiveNote.textContent = archiveLabel(latestBriefing.joplinNoteId);
+    if (joplinArchiveCopy) joplinArchiveCopy.textContent = archiveStatusCopy({ latestBriefing, latestRun, joplin });
+    if (joplinArchiveMode) joplinArchiveMode.textContent = `Mode: ${joplin?.saveMode || "unknown"}`;
+    if (joplinArchiveTarget) joplinArchiveTarget.textContent = `Target: ${archiveTargetLabel(joplin)}`;
+    if (joplinLatestNote) joplinLatestNote.textContent = archiveLabel(latestBriefing.joplinNoteId);
+  } else {
+    if (briefArchiveStatus) briefArchiveStatus.textContent = joplin ? `Joplin: ${joplin.status} (${joplin.saveMode})` : "Joplin archive pending";
+    if (briefArchiveTarget) briefArchiveTarget.textContent = `Target: ${archiveTargetLabel(joplin)}`;
+    if (briefArchiveNote) briefArchiveNote.textContent = "Latest note pending";
+    if (joplinArchiveCopy) joplinArchiveCopy.textContent = joplin?.saveMode === "server"
+      ? `Joplin Server is ready. The next daily run should write into ${joplin.notebookTitle || "EAIS"}.`
+      : "No briefing archive has been recorded yet.";
+    if (joplinArchiveMode) joplinArchiveMode.textContent = `Mode: ${joplin?.saveMode || "unknown"}`;
+    if (joplinArchiveTarget) joplinArchiveTarget.textContent = `Target: ${archiveTargetLabel(joplin)}`;
+    if (joplinLatestNote) joplinLatestNote.textContent = "Latest note pending";
   }
 
   if (plannerNextRunTitle) plannerNextRunTitle.textContent = "EAIS Daily Brief";

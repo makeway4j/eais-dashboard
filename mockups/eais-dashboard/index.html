@@ -201,6 +201,8 @@
                   <li id="brief-source-count">5 source groups</li>
                   <li id="brief-email-status">Email dry-run mode</li>
                   <li id="brief-archive-status">Joplin archive ready</li>
+                  <li id="brief-archive-target">Target notebook pending</li>
+                  <li id="brief-archive-note">Latest note pending</li>
                 </ul>
               </div>
               <div class="output-actions">
@@ -742,6 +744,11 @@
             <section class="panel">
               <h2>Joplin Archive</h2>
               <p class="archive-copy" id="joplin-archive-copy">Daily briefs should autosave to EAIS history and Joplin. The manual button is for resaves, special reports, and notable items.</p>
+              <div class="archive-meta" aria-label="Joplin archive status">
+                <span id="joplin-archive-mode">Mode pending</span>
+                <span id="joplin-archive-target">Notebook pending</span>
+                <span id="joplin-latest-note">Latest note pending</span>
+              </div>
               <div class="archive-actions">
                 <button class="command-button" type="button">Save Daily Brief</button>
                 <button class="text-button" type="button">Open Joplin Note</button>
