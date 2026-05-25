@@ -61,6 +61,18 @@ async function probeJson(url, options = {}, label = url) {
   }
 }
 
+function summarizeChildrenProbe(probe) {
+  if (!probe.body?.items) return probe;
+  return {
+    ...probe,
+    body: {
+      itemCountSample: probe.body.items.length,
+      hasMore: Boolean(probe.body.has_more),
+      firstNames: probe.body.items.slice(0, 5).map((item) => item.name)
+    }
+  };
+}
+
 function joinUrl(base, path) {
   return `${base.replace(/\/$/, "")}${path}`;
 }
@@ -144,10 +156,11 @@ const probes = {
   joplinServerRoot: await probeUrl(joinUrl(serverBase, "/")),
   joplinServerApiPing: await probeUrl(joinUrl(serverBase, "/api/ping")),
   joplinServerAuth: serverAuth.probe,
-  joplinServerChildren: await probeJson(joinUrl(serverBase, "/api/items/root:/:/children"), {
+  joplinServerChildren: summarizeChildrenProbe(await probeJson(joinUrl(serverBase, "/api/items/root:/:/children?limit=5"), {
     headers: serverHeaders
-  })
+  }))
 };
+const serverAuthUsable = Boolean(serverAuth.token && probes.joplinServerChildren.ok);
 
 console.log(JSON.stringify({
   status,
@@ -155,7 +168,9 @@ console.log(JSON.stringify({
   interpretation: {
     dataApiUsable: probes.dataApiPing.ok || probes.dataApiNotes.status === 200,
     serverReachable: Boolean(probes.joplinServerRoot.status || probes.joplinServerApiPing.status),
-    serverAuthUsable: Boolean(serverAuth.token && probes.joplinServerChildren.ok),
-    nextStep: "Use JOPLIN_SAVE_MODE=local until Joplin Server auth and sync-item write behavior are confirmed. The desktop Data API uses /notes; Joplin Server uses X-API-AUTH and serialized sync items."
+    serverAuthUsable,
+    nextStep: serverAuthUsable
+      ? "Joplin Server auth is usable. Run a server-mode dry-run archive and confirm the returned note id."
+      : "Use JOPLIN_SAVE_MODE=local until Joplin Server auth and sync-item write behavior are confirmed. The desktop Data API uses /notes; Joplin Server uses X-API-AUTH and serialized sync items."
   }
 }, null, 2));
