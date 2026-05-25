@@ -16,6 +16,11 @@ process.env.JOPLIN_SAVE_MODE = "local";
 process.env.EAIS_VISION_BOARD_DIR = join(tempDir, "vision-board");
 
 let server;
+let protectedServer;
+
+function basicAuth(user, pass) {
+  return `Basic ${Buffer.from(`${user}:${pass}`).toString("base64")}`;
+}
 
 try {
   const db = await ensureEaisDatabase(eaisDbPath);
@@ -156,8 +161,33 @@ try {
     throw new Error("Expected uploaded vision board image to be served as PNG.");
   }
 
+  process.env.EAIS_AUTH_USER = "James";
+  process.env.EAIS_AUTH_PASS = "test-secret";
+  protectedServer = await createEaisServer();
+  await new Promise((resolve) => protectedServer.listen(0, "127.0.0.1", resolve));
+  const protectedBaseUrl = `http://127.0.0.1:${protectedServer.address().port}`;
+  const denied = await fetch(`${protectedBaseUrl}/api/health`);
+  const allowed = await fetch(`${protectedBaseUrl}/api/health`, {
+    headers: { Authorization: basicAuth("James", "test-secret") }
+  });
+
+  if (denied.status !== 401 || denied.headers.get("www-authenticate")?.includes("Basic realm=\"EAIS\"") !== true) {
+    throw new Error("Expected EAIS auth to require Basic credentials when configured.");
+  }
+
+  if (!allowed.ok) {
+    throw new Error("Expected EAIS auth to accept configured Basic credentials.");
+  }
+
   console.log("EAIS server smoke test passed");
 } finally {
+  delete process.env.EAIS_AUTH_USER;
+  delete process.env.EAIS_AUTH_PASS;
+
+  if (protectedServer) {
+    await new Promise((resolve) => protectedServer.close(resolve));
+  }
+
   if (server) {
     await new Promise((resolve) => server.close(resolve));
   }

@@ -65,12 +65,49 @@ function sendError(response, status, message) {
   sendJson(response, status, { ok: false, error: message });
 }
 
+function sendAuthRequired(response) {
+  response.writeHead(401, {
+    "Content-Type": "text/plain; charset=utf-8",
+    "Cache-Control": "no-store",
+    "WWW-Authenticate": "Basic realm=\"EAIS\", charset=\"UTF-8\""
+  });
+  response.end("Authentication required.");
+}
+
 function sendBinary(response, status, body, contentType) {
   response.writeHead(status, {
     "Content-Type": contentType,
     "Cache-Control": "public, max-age=3600"
   });
   response.end(body);
+}
+
+function isAuthorized(request) {
+  const authUser = process.env.EAIS_AUTH_USER || "";
+  const authPass = process.env.EAIS_AUTH_PASS || "";
+  const authEnabled = Boolean(authUser && authPass);
+
+  if (!authEnabled) {
+    return true;
+  }
+
+  const header = request.headers.authorization || "";
+  const match = header.match(/^Basic\s+(.+)$/i);
+  if (!match) {
+    return false;
+  }
+
+  try {
+    const decoded = Buffer.from(match[1], "base64").toString("utf8");
+    const separator = decoded.indexOf(":");
+    if (separator === -1) {
+      return false;
+    }
+
+    return decoded.slice(0, separator) === authUser && decoded.slice(separator + 1) === authPass;
+  } catch {
+    return false;
+  }
 }
 
 function safeStaticPath(pathname) {
@@ -413,6 +450,11 @@ export async function createEaisServer() {
   const server = createServer(async (request, response) => {
     try {
       const url = new URL(request.url, `http://${request.headers.host || `${host}:${port}`}`);
+
+      if (!isAuthorized(request)) {
+        sendAuthRequired(response);
+        return;
+      }
 
       if (url.pathname.startsWith("/api/")) {
         const handled = await handleApi(request, response, url, db);
