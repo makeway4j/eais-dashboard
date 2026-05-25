@@ -62,6 +62,10 @@
             <span class="nav-icon">09</span>
             <span>System</span>
           </button>
+          <button class="nav-item" data-view="ai-health" type="button">
+            <span class="nav-icon">10</span>
+            <span>AI Health</span>
+          </button>
         </nav>
 
         <div class="sidebar-footer">
@@ -1030,6 +1034,65 @@
               <label class="check-row"><input type="checkbox"> Install Cloudflare Tunnel</label>
               <label class="check-row"><input type="checkbox"> Protect eais.muvazio.com with Access</label>
             </section>
+          </div>
+        </section>
+
+        <section class="view" id="view-ai-health">
+          <div class="metric-grid ai-health-metrics">
+            <article class="metric-card">
+              <span class="metric-label">Overall Readiness</span>
+              <strong id="ai-health-readiness">Checking</strong>
+              <span class="metric-note" id="ai-health-readiness-note">provider sweep pending</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Provider Issues</span>
+              <strong id="ai-health-issues">--</strong>
+              <span class="metric-note">watch + down count</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Local Kora</span>
+              <strong id="ai-health-kora">--</strong>
+              <span class="metric-note">bridge and Ollama</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Last Checked</span>
+              <strong id="ai-health-checked">--</strong>
+              <span class="metric-note">live status endpoint</span>
+            </article>
+          </div>
+
+          <div class="ai-health-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>AI Provider Status</h2>
+                  <p>OpenAI, Claude, Gemini, Kora, and watch-only vendors checked before you trust the morning run.</p>
+                </div>
+                <button class="command-button" id="refresh-ai-health" type="button">Refresh</button>
+              </div>
+              <div class="ai-provider-list" id="ai-health-list">
+                <article class="ai-provider-row loading">
+                  <span class="provider-status-dot unknown"></span>
+                  <div>
+                    <h3>Loading provider health</h3>
+                    <p>EAIS is checking public status feeds and local Kora services.</p>
+                  </div>
+                  <em>Pending</em>
+                </article>
+              </div>
+            </section>
+
+            <aside class="panel ai-health-coverage">
+              <h2>Coverage Notes</h2>
+              <div class="coverage-list">
+                <div><span>OpenAI</span><b>Statuspage API</b></div>
+                <div><span>Anthropic</span><b>Statuspage API</b></div>
+                <div><span>Google Gemini</span><b>Cloud incidents</b></div>
+                <div><span>xAI / Kimi</span><b>Manual watch</b></div>
+                <div><span>Kora</span><b>Homelab probe</b></div>
+              </div>
+              <p class="coverage-note">Unknown means EAIS could not verify a stable provider health API yet; it does not automatically mean the provider is down.</p>
+            </aside>
           </div>
         </section>
       </main>

@@ -52,8 +52,11 @@ const imageExtensions = {
 const maxVisionImageBytes = 5 * 1024 * 1024;
 const maxJsonBodyBytes = 8 * 1024 * 1024;
 const koraTimeoutMs = Number(process.env.EAIS_KORA_TIMEOUT_MS || process.env.EAIS_JARVIS_TIMEOUT_MS || 45000);
+const aiHealthCacheMs = Number(process.env.EAIS_AI_HEALTH_CACHE_MS || 60 * 1000);
+const aiHealthTimeoutMs = Number(process.env.EAIS_AI_HEALTH_TIMEOUT_MS || 7000);
 const sessionCookieName = "eais_session";
 const sessionMaxAgeSeconds = Number(process.env.EAIS_SESSION_MAX_AGE_SECONDS || 60 * 60 * 12);
+let aiHealthCache = { expiresAt: 0, data: null };
 
 function sendJson(response, status, payload) {
   const body = JSON.stringify(payload, null, 2);
@@ -469,6 +472,303 @@ async function getKoraChatReply(message) {
   }
 }
 
+function normalizeAiProviderStatus(status) {
+  if (status === "operational") {
+    return "operational";
+  }
+  if (status === "degraded" || status === "watch") {
+    return "watch";
+  }
+  if (status === "down") {
+    return "down";
+  }
+  return "unknown";
+}
+
+function summarizeAiProviders(providers) {
+  return providers.reduce((summary, provider) => {
+    const status = normalizeAiProviderStatus(provider.status);
+    summary[status] = (summary[status] || 0) + 1;
+    return summary;
+  }, {
+    operational: 0,
+    watch: 0,
+    down: 0,
+    unknown: 0
+  });
+}
+
+function statusPageStatus(indicator) {
+  if (indicator === "none") {
+    return "operational";
+  }
+  if (indicator === "critical") {
+    return "down";
+  }
+  if (indicator === "minor" || indicator === "major" || indicator === "maintenance") {
+    return "watch";
+  }
+  return "unknown";
+}
+
+function providerStatusText(status) {
+  if (status === "operational") {
+    return "Operational";
+  }
+  if (status === "watch") {
+    return "Issue watch";
+  }
+  if (status === "down") {
+    return "Down";
+  }
+  return "Unknown";
+}
+
+async function fetchJsonWithTimeout(url, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), aiHealthTimeoutMs);
+  const startedAt = Date.now();
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        Accept: "application/json",
+        ...(options.headers || {})
+      }
+    });
+    const text = await response.text();
+    const latencyMs = Date.now() - startedAt;
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${text.slice(0, 120)}`);
+    }
+
+    return {
+      data: text ? JSON.parse(text) : {},
+      latencyMs
+    };
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("Request timed out.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function skippedProvider(name, type, url, detail = "Live status check disabled in this environment.") {
+  return {
+    name,
+    type,
+    status: "unknown",
+    statusText: "Skipped",
+    detail,
+    lastUpdated: null,
+    url,
+    latencyMs: null
+  };
+}
+
+async function checkStatusPageProvider(name, url) {
+  if (process.env.EAIS_AI_HEALTH_SKIP_EXTERNAL === "1") {
+    return skippedProvider(name, "vendor", url);
+  }
+
+  try {
+    const { data, latencyMs } = await fetchJsonWithTimeout(url);
+    const indicator = data.status?.indicator || "unknown";
+    const status = statusPageStatus(indicator);
+    const impacted = (data.components || [])
+      .filter((component) => component.status && component.status !== "operational")
+      .slice(0, 4)
+      .map((component) => component.name);
+
+    return {
+      name,
+      type: "vendor",
+      status,
+      statusText: providerStatusText(status),
+      detail: impacted.length ? impacted.join(", ") : data.status?.description || "No active incidents reported.",
+      lastUpdated: data.page?.updated_at || null,
+      url: data.page?.url || url.replace("/api/v2/summary.json", ""),
+      latencyMs
+    };
+  } catch (error) {
+    return {
+      name,
+      type: "vendor",
+      status: "unknown",
+      statusText: "Status check failed",
+      detail: error.message,
+      lastUpdated: null,
+      url,
+      latencyMs: null
+    };
+  }
+}
+
+function googleIncidentText(incident) {
+  return [
+    incident.external_desc,
+    incident.service_name,
+    incident.product_name,
+    incident.most_recent_update?.text
+  ].filter(Boolean).join(" ");
+}
+
+async function checkGoogleAiHealth() {
+  const url = "https://status.cloud.google.com/incidents.json";
+  if (process.env.EAIS_AI_HEALTH_SKIP_EXTERNAL === "1") {
+    return skippedProvider("Google Gemini / Vertex AI", "vendor", url);
+  }
+
+  try {
+    const { data, latencyMs } = await fetchJsonWithTimeout(url);
+    const incidents = Array.isArray(data) ? data : [];
+    const activeAiIncidents = incidents.filter((incident) => {
+      const text = googleIncidentText(incident);
+      return !incident.end && /\b(gemini|vertex ai|ai studio|generative ai|model garden)\b/i.test(text);
+    });
+    const severe = activeAiIncidents.some((incident) => /outage|service disruption|service outage/i.test(incident.most_recent_update?.status || incident.external_desc || ""));
+    const status = activeAiIncidents.length ? (severe ? "down" : "watch") : "operational";
+
+    return {
+      name: "Google Gemini / Vertex AI",
+      type: "vendor",
+      status,
+      statusText: providerStatusText(status),
+      detail: activeAiIncidents.length ? activeAiIncidents.slice(0, 3).map((incident) => incident.external_desc || "Active Google AI incident").join(" | ") : "No active Gemini, Vertex AI, or AI Studio incidents found.",
+      lastUpdated: activeAiIncidents[0]?.most_recent_update?.when || null,
+      url: "https://status.cloud.google.com/",
+      latencyMs
+    };
+  } catch (error) {
+    return {
+      name: "Google Gemini / Vertex AI",
+      type: "vendor",
+      status: "unknown",
+      statusText: "Status check failed",
+      detail: error.message,
+      lastUpdated: null,
+      url,
+      latencyMs: null
+    };
+  }
+}
+
+async function checkKoraBridgeHealth() {
+  const bridgeUrl = (process.env.EAIS_KORA_BRIDGE_URL || "").replace(/\/+$/, "");
+  if (process.env.EAIS_AI_HEALTH_SKIP_EXTERNAL === "1") {
+    return skippedProvider("Kora Bridge", "local", bridgeUrl ? `${bridgeUrl}/health` : "http://192.168.5.157:8791/health");
+  }
+  if (!bridgeUrl) {
+    return skippedProvider("Kora Bridge", "local", "http://192.168.5.157:8791/health", "Bridge URL is not configured.");
+  }
+
+  const headers = {};
+  if (process.env.EAIS_KORA_BRIDGE_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.EAIS_KORA_BRIDGE_TOKEN}`;
+  }
+
+  try {
+    const { data, latencyMs } = await fetchJsonWithTimeout(`${bridgeUrl}/health`, { headers });
+    return {
+      name: "Kora Bridge",
+      type: "local",
+      status: data.ok === false ? "down" : "operational",
+      statusText: data.ok === false ? "Down" : "Operational",
+      detail: data.service ? `${data.service} ${data.provider || "bridge"}` : "Kora bridge health endpoint responded.",
+      lastUpdated: new Date().toISOString(),
+      url: `${bridgeUrl}/health`,
+      latencyMs
+    };
+  } catch (error) {
+    return {
+      name: "Kora Bridge",
+      type: "local",
+      status: "down",
+      statusText: "Down",
+      detail: error.message,
+      lastUpdated: null,
+      url: `${bridgeUrl}/health`,
+      latencyMs: null
+    };
+  }
+}
+
+async function checkKoraOllamaHealth() {
+  const baseUrl = (
+    process.env.EAIS_KORA_OLLAMA_BASE ||
+    process.env.EAIS_KORA_BASE ||
+    process.env.EAIS_JARVIS_BASE ||
+    process.env.EAIS_OLLAMA_BASE ||
+    "http://192.168.5.157:11434"
+  ).replace(/\/+$/, "");
+
+  if (process.env.EAIS_AI_HEALTH_SKIP_EXTERNAL === "1") {
+    return skippedProvider("Kora Ollama", "local", `${baseUrl}/api/tags`);
+  }
+
+  try {
+    const { data, latencyMs } = await fetchJsonWithTimeout(`${baseUrl}/api/tags`);
+    const models = (data.models || []).slice(0, 3).map((model) => model.name).join(", ");
+    return {
+      name: "Kora Ollama",
+      type: "local",
+      status: "operational",
+      statusText: "Operational",
+      detail: models ? `Models available: ${models}` : "Ollama responded; no models listed.",
+      lastUpdated: new Date().toISOString(),
+      url: `${baseUrl}/api/tags`,
+      latencyMs
+    };
+  } catch (error) {
+    return {
+      name: "Kora Ollama",
+      type: "local",
+      status: "down",
+      statusText: "Down",
+      detail: error.message,
+      lastUpdated: null,
+      url: `${baseUrl}/api/tags`,
+      latencyMs: null
+    };
+  }
+}
+
+async function getAiHealth(options = {}) {
+  const now = Date.now();
+  if (!options.force && aiHealthCache.data && aiHealthCache.expiresAt > now) {
+    return aiHealthCache.data;
+  }
+
+  const providers = await Promise.all([
+    checkStatusPageProvider("OpenAI / ChatGPT", "https://status.openai.com/api/v2/summary.json"),
+    checkStatusPageProvider("Anthropic / Claude", "https://status.anthropic.com/api/v2/summary.json"),
+    checkGoogleAiHealth(),
+    Promise.resolve(skippedProvider("xAI Grok", "vendor", "https://status.x.ai", "No stable public JSON status API is configured yet.")),
+    Promise.resolve(skippedProvider("Kimi / Moonshot AI", "vendor", "https://platform.moonshot.ai", "No stable public JSON status API is configured yet.")),
+    checkKoraBridgeHealth(),
+    checkKoraOllamaHealth()
+  ]);
+
+  const data = {
+    ok: true,
+    checkedAt: new Date().toISOString(),
+    summary: summarizeAiProviders(providers),
+    providers
+  };
+  aiHealthCache = {
+    data,
+    expiresAt: now + aiHealthCacheMs
+  };
+
+  return data;
+}
+
 async function serveVisionImage(response, pathname) {
   const fileName = decodeURIComponent(pathname.replace(/^\/api\/vision-board\/images\//, ""));
   if (!/^[a-f0-9-]+\.(gif|jpg|png|webp)$/i.test(fileName)) {
@@ -659,6 +959,16 @@ async function handleApi(request, response, url, db) {
       uptimeSeconds: Math.round(process.uptime()),
       node: process.version
     });
+    return true;
+  }
+
+  if (url.pathname === "/api/ai-health") {
+    if (request.method !== "GET") {
+      sendError(response, 405, "Method not allowed.");
+      return true;
+    }
+
+    sendJson(response, 200, await getAiHealth({ force: url.searchParams.get("refresh") === "1" }));
     return true;
   }
 

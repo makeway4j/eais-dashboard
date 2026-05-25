@@ -49,6 +49,13 @@ const visionUploadTitle = document.querySelector("#vision-upload-title");
 const visionUploadFile = document.querySelector("#vision-upload-file");
 const visionUploadFileLabel = document.querySelector("#vision-upload-file-label");
 const visionUploadStatus = document.querySelector("#vision-upload-status");
+const aiHealthList = document.querySelector("#ai-health-list");
+const aiHealthReadiness = document.querySelector("#ai-health-readiness");
+const aiHealthReadinessNote = document.querySelector("#ai-health-readiness-note");
+const aiHealthIssues = document.querySelector("#ai-health-issues");
+const aiHealthKora = document.querySelector("#ai-health-kora");
+const aiHealthChecked = document.querySelector("#ai-health-checked");
+const refreshAiHealthButton = document.querySelector("#refresh-ai-health");
 let toastTimer;
 let activePlaceIndex = 0;
 let eaisApiOnline = false;
@@ -72,7 +79,8 @@ const viewCopy = {
   vision: ["Vision Board", "Goals, lifestyle targets, and saved objects tied to revenue milestones."],
   social: ["Social Drafts", "Approval-first LinkedIn and X drafts from high-confidence stories."],
   planner: ["Planner", "Project calendar, cron run windows, checklist, and backlog."],
-  system: ["System", "Homelab services, deployment health, and launch checklist."]
+  system: ["System", "Homelab services, deployment health, and launch checklist."],
+  "ai-health": ["AI Health", "Provider status, model readiness, and local Kora checks."]
 };
 
 const places = [
@@ -184,6 +192,23 @@ function formatDateShort(value) {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric"
+  }).format(date);
+}
+
+function formatCheckedTime(value) {
+  if (!value) {
+    return "--";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "--";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit"
   }).format(date);
 }
 
@@ -582,6 +607,92 @@ function renderSystem(system) {
   });
 }
 
+function aiStatusClass(status) {
+  if (status === "operational") {
+    return "good";
+  }
+  if (status === "watch") {
+    return "warn";
+  }
+  if (status === "down") {
+    return "down";
+  }
+  return "neutral";
+}
+
+function aiStatusLabel(status) {
+  if (status === "operational") {
+    return "Operational";
+  }
+  if (status === "watch") {
+    return "Watch";
+  }
+  if (status === "down") {
+    return "Down";
+  }
+  return "Unknown";
+}
+
+function renderAiHealth(data) {
+  if (!aiHealthList) {
+    return;
+  }
+
+  const providers = data.providers || [];
+  const summary = data.summary || { operational: 0, watch: 0, down: 0, unknown: 0 };
+  const issues = Number(summary.watch || 0) + Number(summary.down || 0);
+  const koraProviders = providers.filter((provider) => /kora/i.test(provider.name));
+  const koraDown = koraProviders.some((provider) => provider.status === "down");
+  const koraReady = koraProviders.length && !koraDown;
+
+  if (aiHealthReadiness) {
+    aiHealthReadiness.textContent = summary.down ? "Action" : issues ? "Watch" : "Ready";
+  }
+  if (aiHealthReadinessNote) {
+    aiHealthReadinessNote.textContent = `${summary.operational || 0} operational, ${summary.unknown || 0} unknown`;
+  }
+  if (aiHealthIssues) {
+    aiHealthIssues.textContent = String(issues);
+  }
+  if (aiHealthKora) {
+    aiHealthKora.textContent = koraReady ? "Ready" : koraProviders.length ? "Check" : "Unknown";
+  }
+  if (aiHealthChecked) {
+    aiHealthChecked.textContent = formatCheckedTime(data.checkedAt);
+  }
+
+  aiHealthList.replaceChildren();
+
+  providers.forEach((provider) => {
+    const row = document.createElement("article");
+    const status = aiStatusClass(provider.status);
+    row.className = `ai-provider-row ${status}`;
+
+    const dot = document.createElement("span");
+    dot.className = `provider-status-dot ${status}`;
+
+    const body = document.createElement("div");
+    const heading = document.createElement("h3");
+    const copy = document.createElement("p");
+    const meta = document.createElement("small");
+    const pill = document.createElement("em");
+
+    heading.textContent = provider.name;
+    copy.textContent = provider.detail || "No provider detail returned.";
+    meta.textContent = [
+      provider.type === "local" ? "Homelab" : "Vendor",
+      provider.latencyMs === null || provider.latencyMs === undefined ? null : `${provider.latencyMs}ms`,
+      provider.lastUpdated ? `Updated ${formatCheckedTime(provider.lastUpdated)}` : null
+    ].filter(Boolean).join(" - ");
+    pill.className = `status-pill ${status}`;
+    pill.textContent = provider.statusText || aiStatusLabel(provider.status);
+
+    body.append(heading, copy, meta);
+    row.append(dot, body, pill);
+    aiHealthList.append(row);
+  });
+}
+
 function renderVisionUploads(items = []) {
   if (!visionGrid) {
     return;
@@ -730,6 +841,50 @@ async function hydrateSystem() {
   }
 }
 
+async function hydrateAiHealth(force = false) {
+  if (window.location.protocol === "file:") {
+    return;
+  }
+
+  if (refreshAiHealthButton) {
+    refreshAiHealthButton.disabled = true;
+    refreshAiHealthButton.textContent = "Checking";
+  }
+
+  try {
+    const data = await fetchJson(`/api/ai-health${force ? "?refresh=1" : ""}`);
+    renderAiHealth(data);
+  } catch (error) {
+    console.warn(error);
+    if (aiHealthReadiness) aiHealthReadiness.textContent = "Offline";
+    if (aiHealthReadinessNote) aiHealthReadinessNote.textContent = "AI health endpoint did not respond";
+    if (aiHealthList) {
+      aiHealthList.replaceChildren();
+      const row = document.createElement("article");
+      const dot = document.createElement("span");
+      const body = document.createElement("div");
+      const heading = document.createElement("h3");
+      const copy = document.createElement("p");
+      const pill = document.createElement("em");
+
+      row.className = "ai-provider-row down";
+      dot.className = "provider-status-dot down";
+      heading.textContent = "AI health endpoint";
+      copy.textContent = error.message;
+      pill.className = "status-pill down";
+      pill.textContent = "Down";
+      body.append(heading, copy);
+      row.append(dot, body, pill);
+      aiHealthList.append(row);
+    }
+  } finally {
+    if (refreshAiHealthButton) {
+      refreshAiHealthButton.disabled = false;
+      refreshAiHealthButton.textContent = "Refresh";
+    }
+  }
+}
+
 async function hydrateVisionBoard() {
   if (window.location.protocol === "file:") {
     return;
@@ -757,6 +912,9 @@ function hydrateView(viewName) {
   if (viewName === "system") {
     hydrateSystem();
     hydrateOps();
+  }
+  if (viewName === "ai-health") {
+    hydrateAiHealth();
   }
   if (viewName === "planner") {
     hydrateOps();
@@ -956,12 +1114,21 @@ signalList?.addEventListener("click", (event) => {
   }
 });
 
+refreshAiHealthButton?.addEventListener("click", () => {
+  hydrateAiHealth(true);
+});
+
 document.querySelectorAll(".row-action, .command-button, .full-button, .text-button, .icon-button").forEach((button) => {
   button.addEventListener("click", () => {
     const label = button.getAttribute("title") || button.textContent.trim();
     const calendarAction = button.dataset.calendarAction;
 
     if (button.classList.contains("nav-item")) {
+      return;
+    }
+
+    if (button.id === "refresh-ai-health") {
+      showToast("AI provider health refreshed");
       return;
     }
 

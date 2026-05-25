@@ -810,6 +810,125 @@ h3 {
   color: var(--muted);
 }
 
+.status-pill.down {
+  background: rgba(190, 78, 56, 0.2);
+  color: #faf9f5;
+}
+
+.ai-health-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.ai-health-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 14px;
+}
+
+.ai-provider-list,
+.coverage-list {
+  display: grid;
+  gap: 10px;
+}
+
+.ai-provider-row {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: rgba(var(--panel-rgb), 0.42);
+  padding: 14px;
+}
+
+.ai-provider-row.good {
+  border-left-color: var(--green);
+}
+
+.ai-provider-row.warn {
+  border-left-color: var(--amber);
+}
+
+.ai-provider-row.down {
+  border-left-color: var(--red);
+}
+
+.ai-provider-row.neutral,
+.ai-provider-row.loading {
+  border-left-color: var(--muted);
+}
+
+.provider-status-dot {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--muted);
+  box-shadow: 0 0 0 5px rgba(var(--muted-rgb), 0.1);
+}
+
+.provider-status-dot.good {
+  background: var(--green);
+  box-shadow: 0 0 18px rgba(114, 187, 139, 0.38);
+}
+
+.provider-status-dot.warn {
+  background: var(--amber);
+  box-shadow: 0 0 18px rgba(217, 119, 85, 0.36);
+}
+
+.provider-status-dot.down {
+  background: var(--red);
+  box-shadow: 0 0 18px rgba(190, 78, 56, 0.42);
+}
+
+.provider-status-dot.unknown,
+.provider-status-dot.neutral {
+  background: var(--muted);
+}
+
+.ai-provider-row p {
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.ai-provider-row small,
+.coverage-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.coverage-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  padding: 11px 12px;
+}
+
+.coverage-list span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.coverage-list b {
+  font-size: 13px;
+}
+
+.coverage-note {
+  margin: 14px 0 0;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -1992,9 +2111,11 @@ h3 {
   }
 
   .metric-grid,
+  .ai-health-metrics,
   .content-grid,
   .history-layout,
   .system-grid,
+  .ai-health-layout,
   .lower-grid,
   .api-cost-summary,
   .cost-grid,
@@ -2151,6 +2272,7 @@ h3 {
   }
 
   .archive-actions,
+  .ai-provider-row,
   .backlog-list article,
   .schedule-row,
   .goal-list div {

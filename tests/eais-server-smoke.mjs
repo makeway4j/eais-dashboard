@@ -14,6 +14,7 @@ process.env.SMTP_USER = "eais@example.com";
 process.env.SMTP_PASS = "test-password";
 process.env.JOPLIN_SAVE_MODE = "local";
 process.env.EAIS_VISION_BOARD_DIR = join(tempDir, "vision-board");
+process.env.EAIS_AI_HEALTH_SKIP_EXTERNAL = "1";
 
 let server;
 let protectedServer;
@@ -75,6 +76,7 @@ try {
   const sources = await fetch(`${baseUrl}/api/sources`).then((response) => response.json());
   const history = await fetch(`${baseUrl}/api/history`).then((response) => response.json());
   const system = await fetch(`${baseUrl}/api/system`).then((response) => response.json());
+  const aiHealth = await fetch(`${baseUrl}/api/ai-health`).then((response) => response.json());
   const briefings = await fetch(`${baseUrl}/api/recent-briefings`).then((response) => response.json());
   const ops = await fetch(`${baseUrl}/api/ops`).then((response) => response.json());
   const integrations = await fetch(`${baseUrl}/api/integrations`).then((response) => response.json());
@@ -128,6 +130,10 @@ try {
 
   if (system.system.importedDigestItems !== 1 || system.system.serviceStatus !== "running") {
     throw new Error("Expected system endpoint to report dashboard and database status.");
+  }
+
+  if (!aiHealth.ok || !Array.isArray(aiHealth.providers) || aiHealth.providers.length < 5) {
+    throw new Error("Expected AI health endpoint to return provider health rows.");
   }
 
   if (briefings.briefings[0]?.sentStatus !== "dry-run") {
@@ -228,6 +234,7 @@ try {
 } finally {
   delete process.env.EAIS_AUTH_USER;
   delete process.env.EAIS_AUTH_PASS;
+  delete process.env.EAIS_AI_HEALTH_SKIP_EXTERNAL;
 
   if (protectedServer) {
     await new Promise((resolve) => protectedServer.close(resolve));
