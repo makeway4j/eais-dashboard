@@ -51,7 +51,7 @@ const imageExtensions = {
 };
 const maxVisionImageBytes = 5 * 1024 * 1024;
 const maxJsonBodyBytes = 8 * 1024 * 1024;
-const jarvisTimeoutMs = Number(process.env.EAIS_JARVIS_TIMEOUT_MS || 45000);
+const koraTimeoutMs = Number(process.env.EAIS_KORA_TIMEOUT_MS || process.env.EAIS_JARVIS_TIMEOUT_MS || 45000);
 
 function sendJson(response, status, payload) {
   const body = JSON.stringify(payload, null, 2);
@@ -244,13 +244,13 @@ function decodeVisionImage(imageData) {
   };
 }
 
-function normalizeJarvisMessage(value) {
+function normalizeKoraMessage(value) {
   return String(value || "").trim().slice(0, 2000);
 }
 
-function getJarvisPrompt(message) {
+function getKoraPrompt(message) {
   return [
-    "You are Jarvis inside James's EAIS dashboard.",
+    "You are Kora inside James's EAIS dashboard.",
     "Be direct, useful, and concise.",
     "Focus on AI intelligence, home lab operations, daily briefings, revenue projects, schedules, Joplin, and next actions.",
     "Do not claim you performed external actions unless the user explicitly asks and the tool is available.",
@@ -261,18 +261,72 @@ function getJarvisPrompt(message) {
   ].join("\n");
 }
 
-async function getJarvisChatReply(message) {
-  const baseUrl = (process.env.EAIS_JARVIS_BASE || process.env.EAIS_OLLAMA_BASE || "").replace(/\/+$/, "");
-  const model = process.env.EAIS_JARVIS_MODEL || "llama3.1:8b";
+async function getKoraBridgeReply(message) {
+  const bridgeUrl = (process.env.EAIS_KORA_BRIDGE_URL || "").replace(/\/+$/, "");
+  if (!bridgeUrl) {
+    return null;
+  }
+
+  const headers = { "Content-Type": "application/json" };
+  if (process.env.EAIS_KORA_BRIDGE_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.EAIS_KORA_BRIDGE_TOKEN}`;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), koraTimeoutMs);
+
+  try {
+    const response = await fetch(`${bridgeUrl}/chat`, {
+      method: "POST",
+      headers,
+      signal: controller.signal,
+      body: JSON.stringify({ message, source: "eais-dashboard" })
+    });
+    const body = await response.text();
+
+    if (!response.ok) {
+      throw new Error(`Kora bridge returned ${response.status}: ${body.slice(0, 160)}`);
+    }
+
+    const data = JSON.parse(body);
+    return {
+      provider: data.provider || "kora-bridge",
+      model: data.model || "kora",
+      reply: String(data.reply || "").trim() || "Kora bridge returned an empty reply."
+    };
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("Kora bridge timed out before Kora could answer.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function getKoraChatReply(message) {
+  const bridgeReply = await getKoraBridgeReply(message);
+  if (bridgeReply) {
+    return bridgeReply;
+  }
+
+  const baseUrl = (
+    process.env.EAIS_KORA_OLLAMA_BASE ||
+    process.env.EAIS_KORA_BASE ||
+    process.env.EAIS_JARVIS_BASE ||
+    process.env.EAIS_OLLAMA_BASE ||
+    ""
+  ).replace(/\/+$/, "");
+  const model = process.env.EAIS_KORA_MODEL || process.env.EAIS_JARVIS_MODEL || "llama3.1:8b";
 
   if (!baseUrl) {
-    const error = new Error("Jarvis bridge is not configured.");
+    const error = new Error("Kora bridge is not configured.");
     error.status = 503;
     throw error;
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), jarvisTimeoutMs);
+  const timeout = setTimeout(() => controller.abort(), koraTimeoutMs);
 
   try {
     const response = await fetch(`${baseUrl}/api/generate`, {
@@ -281,7 +335,7 @@ async function getJarvisChatReply(message) {
       signal: controller.signal,
       body: JSON.stringify({
         model,
-        prompt: getJarvisPrompt(message),
+        prompt: getKoraPrompt(message),
         stream: false,
         options: {
           num_predict: 180,
@@ -297,12 +351,13 @@ async function getJarvisChatReply(message) {
 
     const data = JSON.parse(body);
     return {
+      provider: "kora-ollama",
       model: data.model || model,
       reply: String(data.response || "").trim() || "Kora returned an empty reply."
     };
   } catch (error) {
     if (error.name === "AbortError") {
-      throw new Error("Kora timed out before Jarvis could answer.");
+      throw new Error("Kora timed out before answering.");
     }
     throw error;
   } finally {
@@ -356,7 +411,7 @@ async function serveStatic(request, response, pathname) {
 }
 
 async function handleApi(request, response, url, db) {
-  if (url.pathname === "/api/jarvis/chat") {
+  if (url.pathname === "/api/kora/chat" || url.pathname === "/api/jarvis/chat") {
     if (request.method !== "POST") {
       sendError(response, 405, "Method not allowed.");
       return true;
@@ -364,21 +419,21 @@ async function handleApi(request, response, url, db) {
 
     try {
       const payload = await readJsonBody(request);
-      const message = normalizeJarvisMessage(payload.message);
+      const message = normalizeKoraMessage(payload.message);
       if (!message) {
         sendError(response, 400, "Message is required.");
         return true;
       }
 
-      const result = await getJarvisChatReply(message);
+      const result = await getKoraChatReply(message);
       sendJson(response, 200, {
         ok: true,
-        provider: "kora-ollama",
+        provider: result.provider,
         model: result.model,
         reply: result.reply
       });
     } catch (error) {
-      sendError(response, error.status || 502, error.message || "Jarvis bridge failed.");
+      sendError(response, error.status || 502, error.message || "Kora bridge failed.");
     }
     return true;
   }

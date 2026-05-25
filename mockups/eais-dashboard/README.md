@@ -43,7 +43,7 @@ Current design direction:
 - Joplin save/archive actions for daily briefings.
 - Vision board for goals and items such as Lucid Gravity and TUMI backpack.
 - Vacation target image rotator with Bali, Tokyo, Santorini, and Maldives concepts.
-- Always-visible Jarvis chat dock prepared for the VM 106 Jarvis/OpenClaw bridge.
+- Always-visible Kora chat dock prepared for the VM 302 Kora/Hermes bridge.
 - Clickable demo behavior for tabs, filters, action buttons, checklist items, approvals, and toast feedback.
 
 This is intentionally static and code-native. It is meant to validate information architecture, density, and dashboard direction before building the production `/opt/eais` app.

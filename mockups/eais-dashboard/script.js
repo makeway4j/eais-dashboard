@@ -14,7 +14,7 @@ const nextPlaceButton = document.querySelector("#next-place-button");
 const jarvisForm = document.querySelector("#jarvis-form");
 const jarvisInput = document.querySelector("#jarvis-input");
 const jarvisMessages = document.querySelector("#jarvis-messages");
-const jarvisEndpoint = window.EAIS_JARVIS_ENDPOINT || (window.location.protocol === "file:" ? "" : "/api/jarvis/chat");
+const jarvisEndpoint = window.EAIS_KORA_ENDPOINT || window.EAIS_JARVIS_ENDPOINT || (window.location.protocol === "file:" ? "" : "/api/kora/chat");
 const calendarStatus = document.querySelector("#calendar-status");
 const calendarAccountLabel = document.querySelector("#calendar-account-label");
 const signalList = document.querySelector("#signal-list");
@@ -891,7 +891,7 @@ function getLocalJarvisReply(message) {
     return "The Vision Board travel image rotates automatically. Use Change Image or the place chips to pick the target manually.";
   }
 
-  return "Jarvis bridge is visible and ready. This prototype is using local demo replies until we connect the real homelab Jarvis endpoint.";
+  return "Kora bridge is visible and ready. This prototype is using local demo replies until we connect the real homelab Kora endpoint.";
 }
 
 async function getJarvisReply(message) {
@@ -907,14 +907,15 @@ async function getJarvisReply(message) {
     });
 
     if (!response.ok) {
-      throw new Error(`Jarvis returned ${response.status}`);
+      throw new Error(`Kora returned ${response.status}`);
     }
 
     const data = await response.json();
-    const modelNote = data.model ? `\n\n<span class="jarvis-source">Kora / ${data.model}</span>` : "";
+    const source = data.provider === "kora-bridge" ? "Kora Bridge" : "Kora";
+    const modelNote = data.model ? `\n\n<span class="jarvis-source">${source} / ${data.model}</span>` : "";
     return `${data.reply || data.message || getLocalJarvisReply(message)}${modelNote}`;
   } catch (error) {
-    return `Jarvis bridge failed over to local mode: ${error.message}`;
+    return `Kora bridge failed over to local mode: ${error.message}`;
   }
 }
 
@@ -1107,7 +1108,7 @@ jarvisForm?.addEventListener("submit", (event) => {
   addJarvisMessage("You", message);
   jarvisInput.value = "";
   window.setTimeout(async () => {
-    addJarvisMessage("Jarvis", await getJarvisReply(message));
+    addJarvisMessage("Kora", await getJarvisReply(message));
   }, 220);
 });
 
