@@ -197,6 +197,7 @@ Remaining:
 - Current CT 301 reachability check to `192.168.5.153:41184` returned connection refused, so CT 111 may not be listening on that port yet.
 - CT 301 can reach CT 111 on port `22300`, which appears to be Joplin Server/sync rather than the Joplin Data API used by `/notes?token=...`.
 - Use `npm run eais:probe-joplin` on CT 301 to check both the Data API base and Joplin Server base without printing tokens.
+- A user-provided REST token was tested against the locally reachable Windows Joplin Data API on `127.0.0.1:41184` and returned `HTTP 403 Invalid token`, so do not promote it to CT 301 until it is confirmed for the target Data API service.
 - Existing JARVIS notebook id noted by the user: `fd981`.
 - Recommended: create a separate EAIS notebook in Joplin and use its notebook id for `JOPLIN_NOTEBOOK_ID`.
 - Needed before switching to API archive mode: a reachable Joplin Data API, `JOPLIN_TOKEN`, and the EAIS notebook id.
