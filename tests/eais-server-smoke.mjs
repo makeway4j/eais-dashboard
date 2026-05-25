@@ -39,7 +39,7 @@ try {
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `).run(
     "2026-05-24",
-    "AI Daily Briefing - May 24",
+    "James's Daily Briefing - May 24",
     "/tmp/daily-update.html",
     "dry-run",
     "local:/tmp/2026-05-24-daily-briefing.md",

@@ -52,7 +52,7 @@ try {
   await importLegacyDigest(eaisDb, legacyDbPath);
   upsertBriefing(eaisDb, {
     briefingDate: "2026-05-24",
-    title: "AI Daily Briefing - May 24",
+    title: "James's Daily Briefing - May 24",
     sentStatus: "sent",
     sentAt: "2026-05-24T11:00:00.000Z",
     itemCount: 24,
@@ -60,7 +60,7 @@ try {
   });
   upsertBriefing(eaisDb, {
     briefingDate: "2026-05-24",
-    title: "AI Daily Briefing - May 24",
+    title: "James's Daily Briefing - May 24",
     sentStatus: "dry-run",
     sentAt: null,
     itemCount: 24,

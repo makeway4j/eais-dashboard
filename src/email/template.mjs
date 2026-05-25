@@ -84,7 +84,7 @@ function renderSection(topic, items) {
 export function renderDailyEmail({ items, generatedAt = new Date() }) {
   const grouped = groupByTopic(items);
   const highCount = items.filter((item) => item.importance === "high").length;
-  const subject = `AI Daily Briefing - ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(generatedAt)}`;
+  const subject = `James's Daily Briefing - ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(generatedAt)}`;
 
   const sections = topics
     .map((topic) => renderSection(topic, grouped[topic.id]))
@@ -105,7 +105,7 @@ export function renderDailyEmail({ items, generatedAt = new Date() }) {
             <tr>
               <td style="padding:28px;background:#181716;background-image:linear-gradient(118deg,#1c1b19 0%,#141413 58%,rgba(217,119,87,0.22) 100%);color:#faf9f5;border-bottom:1px solid #3b3932;">
                 <p style="margin:0 0 8px;color:#d97757;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;">EAIS Command Brief &middot; Generated ${escapeHtml(generatedAt.toLocaleString())}</p>
-                <h1 style="margin:0;color:#faf9f5;font-size:32px;line-height:1.1;">AI Daily Briefing</h1>
+                <h1 style="margin:0;color:#faf9f5;font-size:32px;line-height:1.1;">James's Daily Briefing</h1>
                 <p style="margin:10px 0 0;color:#e8e6dc;font-size:15px;line-height:1.5;">${items.length} tracked signals, ${highCount} high-priority items, focused on governance, vendors, AI tools, model versions, infrastructure, chips, and tech shifts.</p>
                 <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:18px;">
                   <tr>

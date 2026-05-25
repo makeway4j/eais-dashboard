@@ -382,7 +382,7 @@ function renderOps(ops) {
       briefStatus.textContent = latestBriefing.sentStatus === "sent" ? "Sent" : "Dry Run";
       briefStatus.className = `status-pill ${latestBriefing.sentStatus === "sent" ? "good" : "warn"}`;
     }
-    if (briefTitle) briefTitle.textContent = latestBriefing.title || "AI Daily Briefing";
+    if (briefTitle) briefTitle.textContent = latestBriefing.title || "James's Daily Briefing";
     if (briefSummary) {
       briefSummary.textContent = `Latest briefing generated ${formatDateShort(latestBriefing.createdAt)} with ${latestBriefing.itemCount} live items.`;
     }
