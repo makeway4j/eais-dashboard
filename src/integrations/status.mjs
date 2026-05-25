@@ -57,9 +57,10 @@ export function getJoplinIntegrationStatus() {
   const serverPasswordConfigured = configured(envString("JOPLIN_SERVER_PASSWORD"));
   const serverAuthConfigured = serverTokenConfigured || (serverEmailConfigured && serverPasswordConfigured);
   const notebookConfigured = configured(envString("JOPLIN_NOTEBOOK_ID"));
+  const notebookTitle = envString("JOPLIN_NOTEBOOK_TITLE", "EAIS");
   const localReady = saveMode === "local";
   const apiReady = saveMode === "api" && tokenConfigured;
-  const serverReady = saveMode === "server" && serverAuthConfigured && notebookConfigured;
+  const serverReady = saveMode === "server" && serverAuthConfigured;
 
   return {
     saveMode,
@@ -72,6 +73,7 @@ export function getJoplinIntegrationStatus() {
     serverPasswordConfigured,
     serverAuthConfigured,
     notebookConfigured,
+    notebookTitle,
     readyToArchive: localReady || apiReady || serverReady,
     status: readinessLabel(localReady || apiReady || serverReady, (saveMode === "api" && tokenConfigured) || (saveMode === "server" && serverAuthConfigured)),
     nextStep: apiReady || serverReady
