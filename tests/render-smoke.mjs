@@ -38,9 +38,17 @@ try {
     }
   }
 
-  const archiveFiles = await stat(resolve(archiveDir, `${new Date().toISOString().slice(0, 10)}-daily-briefing.md`));
+  const archivePath = resolve(archiveDir, `${new Date().toISOString().slice(0, 10)}-daily-briefing.md`);
+  const archiveFiles = await stat(archivePath);
   if (!archiveFiles.isFile()) {
     throw new Error("Expected Joplin local archive markdown to be written.");
+  }
+
+  const archiveMarkdown = await readFile(archivePath, "utf8");
+  for (const requiredText of ["## Topic Sections", "## AI Governance", "## AI Tools & Agents", "Why it matters:"]) {
+    if (!archiveMarkdown.includes(requiredText)) {
+      throw new Error(`Joplin archive markdown is missing required text: ${requiredText}`);
+    }
   }
 
   const db = new DatabaseSync(testDbPath);

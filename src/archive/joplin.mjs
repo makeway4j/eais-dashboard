@@ -1,5 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { groupByTopic } from "../analyze/rank.mjs";
+import { topics } from "../config/topics.mjs";
 import { envString } from "../config/env.mjs";
 
 function slugDate(value) {
@@ -11,14 +13,34 @@ function markdownLink(item) {
   const url = item.url || "";
   const summary = item.summary || item.whyItMatters || "";
   const link = url ? `[${title}](${url})` : title;
-  return `- ${link}${summary ? ` - ${summary}` : ""}`;
+  const importance = item.importance ? item.importance.toUpperCase() : "WATCH";
+  const source = item.source ? ` | ${item.source}` : "";
+  const whyItMatters = item.whyItMatters ? `\n  - Why it matters: ${item.whyItMatters}` : "";
+
+  return `- ${importance}${source}: ${link}${summary ? ` - ${summary}` : ""}${whyItMatters}`;
 }
 
 function buildBriefingMarkdown({ subject, items, outputPath, generatedAt }) {
+  const grouped = groupByTopic(items);
   const generated = generatedAt.toLocaleString("en-US", {
     dateStyle: "full",
     timeStyle: "short"
   });
+  const sections = topics
+    .map((topic) => {
+      const topicItems = grouped[topic.id] || [];
+      if (!topicItems.length) return "";
+
+      return [
+        `## ${topic.label}`,
+        "",
+        `${topic.description}`,
+        "",
+        ...topicItems.map(markdownLink),
+        ""
+      ].join("\n");
+    })
+    .filter(Boolean);
 
   return [
     `# ${subject}`,
@@ -30,9 +52,9 @@ function buildBriefingMarkdown({ subject, items, outputPath, generatedAt }) {
     "",
     `${items.length} tracked signals for AI governance, AI vendors, data centers, infrastructure, and related technology.`,
     "",
-    "## Source Items",
+    "## Topic Sections",
     "",
-    ...items.map(markdownLink)
+    ...sections
   ].join("\n");
 }
 
