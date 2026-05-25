@@ -52,9 +52,14 @@ export function getJoplinIntegrationStatus() {
   const apiBase = envString("JOPLIN_API_BASE", "http://127.0.0.1:41184");
   const serverBase = envString("JOPLIN_SERVER_BASE", "http://127.0.0.1:22300");
   const tokenConfigured = configured(envString("JOPLIN_TOKEN"));
+  const serverTokenConfigured = configured(envString("JOPLIN_SERVER_TOKEN"));
+  const serverEmailConfigured = configured(envString("JOPLIN_SERVER_EMAIL"));
+  const serverPasswordConfigured = configured(envString("JOPLIN_SERVER_PASSWORD"));
+  const serverAuthConfigured = serverTokenConfigured || (serverEmailConfigured && serverPasswordConfigured);
   const notebookConfigured = configured(envString("JOPLIN_NOTEBOOK_ID"));
   const localReady = saveMode === "local";
   const apiReady = saveMode === "api" && tokenConfigured;
+  const serverReady = saveMode === "server" && serverAuthConfigured && notebookConfigured;
 
   return {
     saveMode,
@@ -62,12 +67,16 @@ export function getJoplinIntegrationStatus() {
     apiBase,
     serverBase,
     tokenConfigured,
+    serverTokenConfigured,
+    serverEmailConfigured,
+    serverPasswordConfigured,
+    serverAuthConfigured,
     notebookConfigured,
-    readyToArchive: localReady || apiReady,
-    status: readinessLabel(localReady || apiReady, saveMode === "api" && tokenConfigured),
-    nextStep: apiReady
+    readyToArchive: localReady || apiReady || serverReady,
+    status: readinessLabel(localReady || apiReady || serverReady, (saveMode === "api" && tokenConfigured) || (saveMode === "server" && serverAuthConfigured)),
+    nextStep: apiReady || serverReady
       ? "Run a manual dry-run and confirm the returned Joplin note id."
-      : "Keep local archive on, or set JOPLIN_SAVE_MODE=api with JOPLIN_TOKEN and optional JOPLIN_NOTEBOOK_ID."
+      : "Keep local archive on, or configure Joplin Desktop API/server auth before switching archive mode."
   };
 }
 
