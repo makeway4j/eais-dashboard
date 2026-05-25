@@ -38,5 +38,25 @@
     "importance": "watch",
     "summary": "The startup is building tools for monitoring model behavior, data leakage, and compliance drift.",
     "whyItMatters": "Security and observability tooling may become a required layer in regulated AI deployments."
+  },
+  {
+    "title": "New AI coding agent adds browser automation and workflow actions",
+    "source": "Example Tool Watch",
+    "url": "https://example.com/tools/coding-agent",
+    "publishedAt": "2026-05-24T07:20:00-05:00",
+    "topic": "tools",
+    "importance": "medium",
+    "summary": "A coding assistant added agentic browser actions, workflow triggers, and team review controls.",
+    "whyItMatters": "AI tools and agents show what is becoming useful for daily workflows, automation, and new revenue projects."
+  },
+  {
+    "title": "Frontier lab ships model version update with longer context window",
+    "source": "Example Model Notes",
+    "url": "https://example.com/models/version-update",
+    "publishedAt": "2026-05-24T06:45:00-05:00",
+    "topic": "models",
+    "importance": "medium",
+    "summary": "The model update improves reasoning reliability, expands context length, and changes API pricing tiers.",
+    "whyItMatters": "Model version changes affect which systems are practical to automate, summarize, and build on."
   }
 ]

@@ -51,14 +51,32 @@ function renderSection(topic, items) {
   if (!items?.length) return "";
 
   return `
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:24px;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:28px;border:1px solid #3b3932;border-radius:8px;overflow:hidden;background:#181716;">
       <tr>
-        <td>
-          <h2 style="margin:0 0 4px;color:#faf9f5;font-size:20px;line-height:1.25;">${escapeHtml(topic.label)}</h2>
-          <p style="margin:0 0 8px;color:#b0aea5;font-size:13px;line-height:1.45;">${escapeHtml(topic.description)}</p>
+        <td style="width:7px;background:#d97757;font-size:1px;line-height:1px;">&nbsp;</td>
+        <td style="padding:16px 18px;background:#24231f;border-bottom:1px solid #3b3932;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+            <tr>
+              <td>
+                <p style="margin:0 0 5px;color:#d97757;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;">Topic Section</p>
+                <h2 style="margin:0;color:#faf9f5;font-size:23px;line-height:1.2;">${escapeHtml(topic.label)}</h2>
+              </td>
+              <td align="right" style="vertical-align:top;">
+                <span style="display:inline-block;padding:6px 9px;border-radius:4px;background:#141413;border:1px solid #3b3932;color:#faf9f5;font-size:12px;font-weight:900;">${items.length} item${items.length === 1 ? "" : "s"}</span>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:9px 0 0;color:#b0aea5;font-size:14px;line-height:1.5;">${escapeHtml(topic.description)}</p>
         </td>
       </tr>
-      ${items.map(renderItem).join("")}
+      <tr>
+        <td style="width:7px;background:#d97757;font-size:1px;line-height:1px;">&nbsp;</td>
+        <td style="padding:0 18px 2px;background:#181716;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+            ${items.map(renderItem).join("")}
+          </table>
+        </td>
+      </tr>
     </table>
   `;
 }
@@ -88,7 +106,7 @@ export function renderDailyEmail({ items, generatedAt = new Date() }) {
               <td style="padding:28px;background:#181716;background-image:linear-gradient(118deg,#1c1b19 0%,#141413 58%,rgba(217,119,87,0.22) 100%);color:#faf9f5;border-bottom:1px solid #3b3932;">
                 <p style="margin:0 0 8px;color:#d97757;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;">EAIS Command Brief &middot; Generated ${escapeHtml(generatedAt.toLocaleString())}</p>
                 <h1 style="margin:0;color:#faf9f5;font-size:32px;line-height:1.1;">AI Daily Briefing</h1>
-                <p style="margin:10px 0 0;color:#e8e6dc;font-size:15px;line-height:1.5;">${items.length} tracked signals, ${highCount} high-priority items, focused on governance, vendors, infrastructure, chips, products, and tech shifts.</p>
+                <p style="margin:10px 0 0;color:#e8e6dc;font-size:15px;line-height:1.5;">${items.length} tracked signals, ${highCount} high-priority items, focused on governance, vendors, AI tools, model versions, infrastructure, chips, and tech shifts.</p>
                 <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:18px;">
                   <tr>
                     <td style="padding:8px 10px;border:1px solid #3b3932;border-radius:8px;background:rgba(20,20,19,0.76);color:#faf9f5;font-size:12px;font-weight:800;">Signals: ${items.length}</td>
@@ -104,7 +122,7 @@ export function renderDailyEmail({ items, generatedAt = new Date() }) {
                   <tr>
                     <td style="padding:16px;">
                       <h2 style="margin:0 0 10px;color:#faf9f5;font-size:18px;">Executive Summary</h2>
-                      <p style="margin:0;color:#e8e6dc;font-size:14px;line-height:1.6;">Your morning scan of AI governance, major vendors, model/product releases, data centers, chips, enterprise adoption, security, funding, and market signals. Items are ranked for importance and grounded with source links.</p>
+                      <p style="margin:0;color:#e8e6dc;font-size:14px;line-height:1.6;">Your morning scan of AI governance, major vendors, AI tools, model versions, data centers, chips, enterprise adoption, security, funding, and market signals. Items are ranked for importance and grounded with source links.</p>
                     </td>
                   </tr>
                 </table>

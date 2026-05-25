@@ -32,7 +32,7 @@ try {
   }
 
   const html = await readFile(outputPath, "utf8");
-  for (const requiredText of ["AI Daily Briefing", "AI Governance", "Major AI Vendors", "Data Centers"]) {
+  for (const requiredText of ["AI Daily Briefing", "AI Governance", "Major AI Vendors", "Data Centers", "AI Tools &amp; Agents", "Model Versions &amp; Releases", "Topic Section"]) {
     if (!html.includes(requiredText)) {
       throw new Error(`Generated HTML is missing required text: ${requiredText}`);
     }

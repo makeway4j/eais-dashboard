@@ -16,8 +16,13 @@ export const topics = [
   },
   {
     id: "models",
-    label: "Models & Product Releases",
-    description: "New models, app features, agent tools, API changes, product launches, and pricing shifts."
+    label: "Model Versions & Releases",
+    description: "New model versions, model families, API releases, benchmarks, pricing shifts, and product launch notes."
+  },
+  {
+    id: "tools",
+    label: "AI Tools & Agents",
+    description: "New AI tools, agent builders, coding assistants, workflow apps, creative tools, browser agents, and automation platforms."
   },
   {
     id: "chips",

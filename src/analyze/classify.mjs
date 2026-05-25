@@ -8,8 +8,16 @@ const topicKeywords = {
     "capacity", "inference campus", "colocation"
   ],
   models: [
-    "model", "release", "launch", "agent", "api", "pricing", "benchmark", "reasoning",
-    "multimodal", "voice", "video", "tool use"
+    "model", "version", "release", "launch", "api", "pricing", "benchmark", "reasoning",
+    "multimodal", "voice", "video", "tool use", "gpt-5", "gpt-4", "claude 4",
+    "claude 3", "gemini 2", "gemini 3", "llama", "mistral", "kimi", "deepseek",
+    "model card", "context window", "frontier model"
+  ],
+  tools: [
+    "ai tool", "tools", "agent", "agents", "agentic", "manus", "cursor", "windsurf",
+    "lovable", "replit", "v0", "bolt", "n8n", "zapier", "workflow", "automation",
+    "coding assistant", "code assistant", "browser agent", "operator", "computer use",
+    "creative tool", "video generator", "image generator", "research agent"
   ],
   chips: [
     "gpu", "nvidia", "amd", "intel", "chip", "semiconductor", "hbm", "memory",
@@ -78,6 +86,7 @@ function whyItMatters(item, topic) {
   if (topic === "governance") return "Governance shifts can change vendor behavior, compliance needs, and the pace of AI deployment.";
   if (topic === "infrastructure") return "Infrastructure updates show where AI capacity, power, and chip constraints are moving.";
   if (topic === "models") return "Model and product changes affect what tools are practical to use, automate, or build on.";
+  if (topic === "tools") return "AI tools and agents show what is becoming useful for daily workflows, automation, and new revenue projects.";
   if (topic === "chips") return "Hardware changes shape AI capacity, costs, bottlenecks, and competitive advantage.";
   if (topic === "enterprise") return "Enterprise adoption signals which AI tools are moving from experiments into durable workflows.";
   if (topic === "security") return "Safety and security issues can create operational, legal, and trust risks.";
