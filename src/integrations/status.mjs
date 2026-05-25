@@ -50,6 +50,7 @@ export function getJoplinIntegrationStatus() {
   const saveMode = envString("JOPLIN_SAVE_MODE", "off").toLowerCase();
   const localExportDir = envString("JOPLIN_LOCAL_EXPORT_DIR", "archives/joplin");
   const apiBase = envString("JOPLIN_API_BASE", "http://127.0.0.1:41184");
+  const serverBase = envString("JOPLIN_SERVER_BASE", "http://127.0.0.1:22300");
   const tokenConfigured = configured(envString("JOPLIN_TOKEN"));
   const notebookConfigured = configured(envString("JOPLIN_NOTEBOOK_ID"));
   const localReady = saveMode === "local";
@@ -59,6 +60,7 @@ export function getJoplinIntegrationStatus() {
     saveMode,
     localExportDir,
     apiBase,
+    serverBase,
     tokenConfigured,
     notebookConfigured,
     readyToArchive: localReady || apiReady,

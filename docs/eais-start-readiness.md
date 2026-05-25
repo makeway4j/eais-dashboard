@@ -195,9 +195,11 @@ Remaining:
 - Intended Joplin API base from CT 301: `http://192.168.5.153:41184`.
 - CT 301 is configured with that API base, but keeps `JOPLIN_SAVE_MODE=local` until the token and notebook are ready.
 - Current CT 301 reachability check to `192.168.5.153:41184` returned connection refused, so CT 111 may not be listening on that port yet.
+- CT 301 can reach CT 111 on port `22300`, which appears to be Joplin Server/sync rather than the Joplin Data API used by `/notes?token=...`.
+- Use `npm run eais:probe-joplin` on CT 301 to check both the Data API base and Joplin Server base without printing tokens.
 - Existing JARVIS notebook id noted by the user: `fd981`.
 - Recommended: create a separate EAIS notebook in Joplin and use its notebook id for `JOPLIN_NOTEBOOK_ID`.
-- Needed before switching to API archive mode: `JOPLIN_TOKEN`, confirmed port reachability from CT 301, and the EAIS notebook id.
+- Needed before switching to API archive mode: a reachable Joplin Data API, `JOPLIN_TOKEN`, and the EAIS notebook id.
 
 ## Security Blockers Before External Access
 
